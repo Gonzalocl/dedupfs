@@ -3,7 +3,7 @@
 
 
 hash.o: hash.c
-	gcc hash.c -o hash.o
+	gcc hash.c -lcrypto -o hash.o
 
 
 clean:
