@@ -5,7 +5,9 @@ struct block_handler_conf {
     char *blocks_path;
     int block_size;
     int hash_type;
+    int hash_length;
     int hash_split;
+    int bytes_link_counter;
 };
 
 
