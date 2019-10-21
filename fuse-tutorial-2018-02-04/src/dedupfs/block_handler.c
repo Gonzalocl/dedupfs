@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
 #include "block_handler.h"
 
 
@@ -30,7 +34,7 @@ int block_handler_end() {
 }
 
 int block_create(char *hash, char *data) {
-    if (conf == NULL) {
+    if (handler_conf == NULL) {
         // TODO
         // TODO call init?
         return -1;
@@ -75,7 +79,7 @@ int block_create(char *hash, char *data) {
 }
 
 int block_delete(char *hash) {
-    if (conf == NULL) {
+    if (handler_conf == NULL) {
         // TODO
         // TODO call init?
         return -1;
@@ -90,7 +94,7 @@ int block_delete(char *hash) {
 
 
 int block_read(char *hash, char *data) {
-    if (conf == NULL) {
+    if (handler_conf == NULL) {
         // TODO
         // TODO call init?
         return -1;
