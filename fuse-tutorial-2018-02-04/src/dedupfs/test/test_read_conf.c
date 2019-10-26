@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <limits.h>
+#include <errno.h>
 
 #include "../block_handler.h"
 
@@ -10,37 +12,54 @@ struct block_handler_conf* handler_conf = NULL;
 int read_conf_file(char *blocks_path) {
 
     // TODO use open read write?
-    // TODO max
-    char path[4096];
-    sprintf(path, "%s/%s", blocks_path, CONF_FILENAME);
-    printf("path: %s\n", path);
+    char path[PATH_MAX];
+    int path_length;
+    int ret_value = 0;
+
+
+    if (snprintf(path, PATH_MAX, "%s/%s", blocks_path, CONF_FILENAME) < 0) {
+        return -EIO;
+    }
 
     FILE * conf_file;
     if ((conf_file = fopen(path, "rb")) == NULL) {
-        return -1;
+        return -errno;
     }
 
-    int len;
-    fread(&len, 1, 1, conf_file);
-    fread(handler_conf->blocks_path, 1, len, conf_file);
-    fread(&handler_conf->block_size, 4, 1, conf_file);
-    fread(&handler_conf->hash_type, 4, 1, conf_file);
-    fread(&handler_conf->hash_length, 4, 1, conf_file);
-    fread(&handler_conf->hash_split, 4, 1, conf_file);
-    fread(&handler_conf->bytes_link_counter, 4, 1, conf_file);
+    if (fread(&path_length, 1, 1, conf_file) != 1) {
+        ret_value = -EIO;
+        goto out;
+    }
+    if (fread(handler_conf->blocks_path, 1, path_length, conf_file) != path_length) {
+        ret_value = -EIO;
+        goto out;
+    }
+    if (fread(&handler_conf->block_size, 4, 1, conf_file) != 1) {
+        ret_value = -EIO;
+        goto out;
+    }
+    if (fread(&handler_conf->hash_type, 4, 1, conf_file) != 1) {
+        ret_value = -EIO;
+        goto out;
+    }
+    if (fread(&handler_conf->hash_length, 4, 1, conf_file) != 1) {
+        ret_value = -EIO;
+        goto out;
+    }
+    if (fread(&handler_conf->hash_split, 4, 1, conf_file) != 1) {
+        ret_value = -EIO;
+        goto out;
+    }
+    if (fread(&handler_conf->bytes_link_counter, 4, 1, conf_file) != 1) {
+        ret_value = -EIO;
+        goto out;
+    }
 
-
-    fclose(conf_file);
-
-    // TODO malloc str? set max
-    // TODO dont use scanf
-//    scanf("%s\n%d\n%d\n%d\n%d\n%d\n",
-//            handler_conf->blocks_path,
-//            &handler_conf->block_size,
-//            &handler_conf->hash_type,
-//            &handler_conf->hash_length,
-//            &handler_conf->hash_split,
-//            &handler_conf->bytes_link_counter);
+    out:
+    if (fclose(conf_file) != 0) {
+        return -errno;
+    }
+    return ret_value;
 }
 
 
@@ -48,8 +67,9 @@ int main () {
 
     handler_conf = malloc(sizeof(struct block_handler_conf));
     handler_conf->blocks_path = malloc(4096);
-    read_conf_file("bin");
+    int ret = read_conf_file("bin");
 
+    printf("ret = %d\n", ret);
     printf("\n");
     printf("blocks_path:        %s\n", handler_conf->blocks_path);
     printf("block_size:         %d\n", handler_conf->block_size);
