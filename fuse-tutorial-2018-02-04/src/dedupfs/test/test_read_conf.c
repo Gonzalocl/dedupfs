@@ -34,10 +34,17 @@ int read_conf_file(char *blocks_path) {
         ret_value = -EIO;
         goto out;
     }
+
     if (fread(&handler_conf->block_size, 4, 1, conf_file) != 1) {
         ret_value = -EIO;
         goto out;
     }
+    if (handler_conf->block_size <= 0) {
+        ret_value = -ENOTRECOVERABLE;
+        goto out;
+    }
+
+    // TODO check read values
     if (fread(&handler_conf->hash_type, 4, 1, conf_file) != 1) {
         ret_value = -EIO;
         goto out;
