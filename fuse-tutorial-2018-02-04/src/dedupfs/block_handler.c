@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <string.h>
 
 #include "block_handler.h"
 
@@ -152,46 +153,64 @@ int read_conf_file(char *blocks_path) {
 }
 
 // pass an allocated struct
-int block_handler_init(struct block_handler_conf *conf) {
+int block_handler_init(char *fs, struct block_handler_conf *conf) {
 
-    int err = 0;
+    int ret_value = 0;
+
+    if (handler_conf != NULL) {
+        // TODO
+        return -1;
+    }
+
+    strncpy(fs_path, fs, PATH_MAX-1);
+    // TODO
+//    if (PATH_MAX > 0) {
+        fs_path[PATH_MAX-1] = '\0';
+//    }
 
     if ((handler_conf = malloc(sizeof(struct block_handler_conf))) == NULL) {
         // TODO man malloc no errno?
         return -errno;
     }
 
-    // set default values
+
     if (conf == NULL) {
 
-        if (access()) {
-
+        // TODO check folder exists
+        if (access(DEFAULT_BLOCKS_PATH)) {
+            read_conf_file(DEFAULT_BLOCKS_PATH);
         }
         else {
-            // TODO create conf file
-//            handler_conf->blocks_path = DEFAULT_BLOCKS_PATH;
+            strncpy(handler_conf->blocks_path, DEFAULT_BLOCKS_PATH);
             handler_conf->block_size = DEFAULT_BLOCK_SIZE;
             handler_conf->hash_type = DEFAULT_HASH_TYPE;
             handler_conf->hash_length = DEFAULT_HASH_LENGTH;
             handler_conf->hash_split = DEFAULT_HASH_SPLIT;
             handler_conf->hash_split_size = DEFAULT_HASH_SPLIT_SIZE;
             handler_conf->bytes_link_counter = DEFAULT_BYTES_LINK_COUNTER;
+            write_conf_file();
         }
     }
     else {
 
         // TODO access common factor?
-        if (access()) {
-
+        // TODO check folder exists
+        if (access(conf->blocks_path)) {
+            read_conf_file(conf->blocks_path);
+            // TODO check no defautl parameters are ok check other parameters are ok
         }
         else {
+            // TODO copy parameter and check values are ok and write
 
         }
 
     }
 
-
-    return err;
+    return 0;
+    error:
+    free(handler_conf);
+    fs_path[0] = '\0';
+    return ret_value;
 }
 
 int block_handler_get_conf(struct block_handler_conf *conf) {
@@ -222,7 +241,7 @@ int block_create(char *hash, char *data) {
 
     // TODO
     char block_path[4096];
-    sprintf(block_path, "%s/%02x/%02x", handler_conf->blocks_path, hash[0], hash[1]);
+//    sprintf(block_path, "%s/%02x/%02x", handler_conf->blocks_path, hash[0], hash[1]);
     if (access(block_path, F_OK) != -1) {
         // file exists increase link counter
         int link_counter;

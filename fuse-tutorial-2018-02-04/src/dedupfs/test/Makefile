@@ -15,3 +15,4 @@ bin/test_write_conf: test_write_conf.c ../block_handler.h
 
 clean:
 	rm -rf bin/*
+	mkdir bin/fs
