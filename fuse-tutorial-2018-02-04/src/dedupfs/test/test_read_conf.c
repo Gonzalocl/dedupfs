@@ -3,11 +3,12 @@
 #include <unistd.h>
 #include <limits.h>
 #include <errno.h>
-
+#include <string.h>
 #include "../block_handler.h"
 
 #define CONF_FILENAME "conf"
 struct block_handler_conf* handler_conf = NULL;
+char fs_path[PATH_MAX];
 
 int read_conf_file(char *blocks_path) {
 
@@ -17,7 +18,7 @@ int read_conf_file(char *blocks_path) {
     int ret_value = 0;
 
 
-    if (snprintf(path, PATH_MAX, "%s/%s", blocks_path, CONF_FILENAME) < 0) {
+    if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, blocks_path, CONF_FILENAME) < 0) {
         return -EIO;
     }
 
@@ -78,8 +79,8 @@ int read_conf_file(char *blocks_path) {
 int main () {
 
     handler_conf = malloc(sizeof(struct block_handler_conf));
-    handler_conf->blocks_path = malloc(4096);
-    int ret = read_conf_file("bin");
+    strcpy(fs_path, "bin/fs");
+    int ret = read_conf_file(DEFAULT_BLOCKS_PATH);
 
     printf("ret = %d\n", ret);
     printf("\n");
