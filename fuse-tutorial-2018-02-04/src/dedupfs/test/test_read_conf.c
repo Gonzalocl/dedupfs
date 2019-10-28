@@ -58,6 +58,10 @@ int read_conf_file(char *blocks_path) {
         ret_value = -EIO;
         goto out;
     }
+    if (fread(&handler_conf->hash_split_size, 4, 1, conf_file) != 1) {
+        ret_value = -EIO;
+        goto out;
+    }
     if (fread(&handler_conf->bytes_link_counter, 4, 1, conf_file) != 1) {
         ret_value = -EIO;
         goto out;
@@ -84,6 +88,7 @@ int main () {
     printf("hash_type:          %d\n", handler_conf->hash_type);
     printf("hash_length:        %d\n", handler_conf->hash_length);
     printf("hash_split:         %d\n", handler_conf->hash_split);
+    printf("hash_split_size     %d\n", handler_conf->hash_split_size);
     printf("bytes_link_counter: %d\n", handler_conf->bytes_link_counter);
 
 
