@@ -10,6 +10,11 @@
 struct block_handler_conf* handler_conf = NULL;
 char fs_path[PATH_MAX];
 
+/*
+ * read configuration file
+ * file should exist handler_conf allocated and
+ * fs_path set
+ */
 int read_conf_file(char *blocks_path) {
 
     // TODO use open read write?

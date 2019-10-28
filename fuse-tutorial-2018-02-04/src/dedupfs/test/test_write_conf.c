@@ -10,6 +10,11 @@
 struct block_handler_conf* handler_conf = NULL;
 char fs_path[PATH_MAX];
 
+/*
+ * create configuration file and write it
+ * the folder should exist handler_conf allocated and
+ * fs_path set
+ */
 int write_conf_file() {
 
     // TODO use open read write?
