@@ -1,12 +1,24 @@
 #ifndef BLOCK_HANDLER_H
 #define BLOCK_HANDLER_H
 
+#include <limits.h>
+
+#define DEFAULT_BLOCKS_PATH "blocks"
+#define DEFAULT_BLOCK_SIZE 32
+// TODO
+#define DEFAULT_HASH_TYPE 0
+#define DEFAULT_HASH_LENGTH 0
+#define DEFAULT_HASH_SPLIT 2
+#define DEFAULT_HASH_SPLIT_SIZE 1
+#define DEFAULT_BYTES_LINK_COUNTER 4
+
 struct block_handler_conf {
-    char *blocks_path;
+    char blocks_path[PATH_MAX];
     int block_size;
     int hash_type;
     int hash_length;
     int hash_split;
+    int hash_split_size;
     int bytes_link_counter;
 };
 
