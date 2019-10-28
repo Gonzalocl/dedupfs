@@ -10,7 +10,7 @@
 struct block_handler_conf* handler_conf = NULL;
 char fs_path[PATH_MAX];
 
-int read_conf_file(char *blocks_path) {
+int write_conf_file() {
 
     // TODO use open read write?
     char path[PATH_MAX];
@@ -18,52 +18,51 @@ int read_conf_file(char *blocks_path) {
     int ret_value = 0;
 
 
-    if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, blocks_path, CONF_FILENAME) < 0) {
+    if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, handler_conf->blocks_path, CONF_FILENAME) < 0) {
         return -EIO;
     }
 
     FILE * conf_file;
-    if ((conf_file = fopen(path, "rb")) == NULL) {
+    if ((conf_file = fopen(path, "wb")) == NULL) {
         return -errno;
     }
 
-    // TODO check this can be negative
-    if (fread(&path_length, 4, 1, conf_file) != 1) {
+    path_length = strnlen(handler_conf->blocks_path, PATH_MAX);
+    if (fwrite(&path_length, 4, 1, conf_file) != 1) {
         ret_value = -EIO;
         goto out;
     }
-    if (fread(handler_conf->blocks_path, 1, path_length, conf_file) != path_length) {
+    if (fwrite(handler_conf->blocks_path, 1, path_length, conf_file) != path_length) {
         ret_value = -EIO;
         goto out;
     }
 
-    if (fread(&handler_conf->block_size, 4, 1, conf_file) != 1) {
+    if (fwrite(&handler_conf->block_size, 4, 1, conf_file) != 1) {
         ret_value = -EIO;
-        goto out;
-    }
-    if (handler_conf->block_size <= 0) {
-        ret_value = -ENOTRECOVERABLE;
         goto out;
     }
 
-    // TODO check read values
-    if (fread(&handler_conf->hash_type, 4, 1, conf_file) != 1) {
+    if (fwrite(&handler_conf->hash_type, 4, 1, conf_file) != 1) {
         ret_value = -EIO;
         goto out;
     }
-    if (fread(&handler_conf->hash_length, 4, 1, conf_file) != 1) {
+
+    if (fwrite(&handler_conf->hash_length, 4, 1, conf_file) != 1) {
         ret_value = -EIO;
         goto out;
     }
-    if (fread(&handler_conf->hash_split, 4, 1, conf_file) != 1) {
+
+    if (fwrite(&handler_conf->hash_split, 4, 1, conf_file) != 1) {
         ret_value = -EIO;
         goto out;
     }
-    if (fread(&handler_conf->hash_split_size, 4, 1, conf_file) != 1) {
+
+    if (fwrite(&handler_conf->hash_split_size, 4, 1, conf_file) != 1) {
         ret_value = -EIO;
         goto out;
     }
-    if (fread(&handler_conf->bytes_link_counter, 4, 1, conf_file) != 1) {
+
+    if (fwrite(&handler_conf->bytes_link_counter, 4, 1, conf_file) != 1) {
         ret_value = -EIO;
         goto out;
     }
@@ -79,8 +78,15 @@ int read_conf_file(char *blocks_path) {
 int main () {
 
     handler_conf = malloc(sizeof(struct block_handler_conf));
+    strcpy(handler_conf->blocks_path, "test_blocks");
+    handler_conf->block_size = 25;
+    handler_conf->hash_type = 6;
+    handler_conf->hash_length = 256;
+    handler_conf->hash_split = 1;
+    handler_conf->hash_split_size = 2;
+    handler_conf->bytes_link_counter = 4;
     strcpy(fs_path, "bin/fs");
-    int ret = read_conf_file("test_blocks");
+    int ret = write_conf_file();
 
     printf("ret = %d\n", ret);
     printf("\n");
