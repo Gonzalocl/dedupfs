@@ -1,29 +1,62 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "block_handler.h"
 
+#define CONF_FILENAME "conf"
+
+
 
 struct block_handler_conf* handler_conf = NULL;
-
+char fs_path[PATH_MAX];
 
 // pass an allocated struct
 int block_handler_init(struct block_handler_conf *conf) {
-    // TODO this only sets default values
+
+    int err = 0;
+
+    if ((handler_conf = malloc(sizeof(struct block_handler_conf))) == NULL) {
+        // TODO man malloc no errno?
+        return -errno;
+    }
+
     // set default values
     if (conf == NULL) {
-        handler_conf = malloc(sizeof(struct block_handler_conf));
-        handler_conf->blocks_path = "blocks";
-        handler_conf->block_size = 32;
-        handler_conf->hash_type = 0;
-        handler_conf->hash_split = 0;
-        handler_conf->bytes_link_counter = 4;
+
+        if (access()) {
+
+        }
+        else {
+            // TODO create conf file
+//            handler_conf->blocks_path = DEFAULT_BLOCKS_PATH;
+            handler_conf->block_size = DEFAULT_BLOCK_SIZE;
+            handler_conf->hash_type = DEFAULT_HASH_TYPE;
+            handler_conf->hash_length = DEFAULT_HASH_LENGTH;
+            handler_conf->hash_split = DEFAULT_HASH_SPLIT;
+            handler_conf->hash_split_size = DEFAULT_HASH_SPLIT_SIZE;
+            handler_conf->bytes_link_counter = DEFAULT_BYTES_LINK_COUNTER;
+        }
     }
-    return 0;
+    else {
+
+        // TODO access common factor?
+        if (access()) {
+
+        }
+        else {
+
+        }
+
+    }
+
+
+    return err;
 }
+
 int block_handler_get_conf(struct block_handler_conf *conf) {
-    // TODO
+    // TODO make copy?
     return 0;
 }
 
