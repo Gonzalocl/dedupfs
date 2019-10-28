@@ -26,6 +26,7 @@ int read_conf_file(char *blocks_path) {
         return -errno;
     }
 
+    // TODO check this can be negative
     if (fread(&path_length, 1, 1, conf_file) != 1) {
         ret_value = -EIO;
         goto out;
