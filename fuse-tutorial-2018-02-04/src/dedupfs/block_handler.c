@@ -200,7 +200,8 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
     if (conf == NULL) {
 
         if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, DEFAULT_BLOCKS_PATH, CONF_FILENAME) < 0) {
-            return -EIO;
+            ret_value = -EIO;
+            goto error1;
         }
         // TODO how to determine if other error in access
         if (access(path, F_OK) == 0) {
@@ -223,13 +224,28 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
     }
     else {
 
+        if (!check_conf(conf)) {
+            ret_value = -ENOTRECOVERABLE;
+            goto error1;
+        }
+
+        if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, conf->blocks_path, CONF_FILENAME) < 0) {
+            ret_value = -EIO;
+            goto error1;
+        }
+
         if (access(conf->blocks_path, F_OK)) {
-            read_conf_file(conf->blocks_path);
+            if ((ret_value = read_conf_file(DEFAULT_BLOCKS_PATH)) < 0) {
+                goto error1;
+            }
+            // TODO check equal parameters
             // TODO check no defautl parameters are ok check other parameters are ok
         }
         else {
-            // TODO copy parameter and check values are ok and write
-
+            memcpy(handler_conf, conf, sizeof(struct block_handler_conf));
+            if ((ret_value = write_conf_file()) < 0) {
+                goto error1;
+            }
         }
 
     }
