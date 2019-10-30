@@ -24,7 +24,7 @@ struct block_handler_conf {
 
 
 // pass an allocated struct
-int block_handler_init(struct block_handler_conf *conf);
+int block_handler_init(char *fs, struct block_handler_conf *conf);
 int block_handler_get_conf(struct block_handler_conf *conf);
 
 // Free blocks_path

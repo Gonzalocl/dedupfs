@@ -3,8 +3,13 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "block_handler.h"
+
+#define TRUE (0==0)
+#define FALSE (!TRUE)
 
 #define CONF_FILENAME "conf"
 
@@ -15,16 +20,26 @@ char fs_path[PATH_MAX];
 
 /*
  * create configuration file and write it
- * the folder should exist handler_conf allocated and
+ * handler_conf should be allocated and
  * fs_path set
  */
 int write_conf_file() {
 
     // TODO use open read write?
+    // TODO delete if error
     char path[PATH_MAX];
     int path_length;
     int ret_value = 0;
+    int folder_created = FALSE;
 
+    if (mkdir(handler_conf->blocks_path, 0755) != 0) {
+        if (errno != EEXIST) {
+            return -errno;
+        }
+    }
+    else {
+        folder_created = TRUE;
+    }
 
     if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, handler_conf->blocks_path, CONF_FILENAME) < 0) {
         return -EIO;
@@ -155,6 +170,7 @@ int read_conf_file(char *blocks_path) {
 // pass an allocated struct
 int block_handler_init(char *fs, struct block_handler_conf *conf) {
 
+    char path[PATH_MAX];
     int ret_value = 0;
 
     if (handler_conf != NULL) {
@@ -170,32 +186,38 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
 
     if ((handler_conf = malloc(sizeof(struct block_handler_conf))) == NULL) {
         // TODO man malloc no errno?
-        return -errno;
+        ret_value = -1;
+        goto error0:
     }
 
 
     if (conf == NULL) {
 
-        // TODO check folder exists
-        if (access(DEFAULT_BLOCKS_PATH)) {
-            read_conf_file(DEFAULT_BLOCKS_PATH);
+        if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, DEFAULT_BLOCKS_PATH, CONF_FILENAME) < 0) {
+            return -EIO;
+        }
+        // TODO how to determine if other error in access
+        if (access(path, F_OK) == 0) {
+            if ((ret_value = read_conf_file(DEFAULT_BLOCKS_PATH)) < 0) {
+                goto error1;
+            }
         }
         else {
-            strncpy(handler_conf->blocks_path, DEFAULT_BLOCKS_PATH);
+            strncpy(handler_conf->blocks_path, DEFAULT_BLOCKS_PATH, PATH_MAX);
             handler_conf->block_size = DEFAULT_BLOCK_SIZE;
             handler_conf->hash_type = DEFAULT_HASH_TYPE;
             handler_conf->hash_length = DEFAULT_HASH_LENGTH;
             handler_conf->hash_split = DEFAULT_HASH_SPLIT;
             handler_conf->hash_split_size = DEFAULT_HASH_SPLIT_SIZE;
             handler_conf->bytes_link_counter = DEFAULT_BYTES_LINK_COUNTER;
-            write_conf_file();
+            if ((ret_value = write_conf_file()) < 0) {
+                goto error1;
+            }
         }
     }
     else {
 
-        // TODO access common factor?
-        // TODO check folder exists
-        if (access(conf->blocks_path)) {
+        if (access(conf->blocks_path, F_OK)) {
             read_conf_file(conf->blocks_path);
             // TODO check no defautl parameters are ok check other parameters are ok
         }
@@ -207,8 +229,9 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
     }
 
     return 0;
-    error:
+    error1:
     free(handler_conf);
+    error0:
     fs_path[0] = '\0';
     return ret_value;
 }
