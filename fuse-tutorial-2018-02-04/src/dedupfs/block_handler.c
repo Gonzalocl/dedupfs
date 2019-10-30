@@ -228,11 +228,6 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
     }
     else {
 
-        if (!check_conf(conf)) {
-            ret_value = -ENOTRECOVERABLE;
-            goto error1;
-        }
-
         if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, conf->blocks_path, CONF_FILENAME) < 0) {
             ret_value = -EIO;
             goto error1;
@@ -242,11 +237,52 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
             if ((ret_value = read_conf_file(DEFAULT_BLOCKS_PATH)) < 0) {
                 goto error1;
             }
-            // TODO check equal parameters
-            // TODO check no defautl parameters are ok check other parameters are ok
+            if (conf->blocks_path[0] != 0 && strncmp(conf->blocks_path, handler_conf->blocks_path, PATH_MAX) != 0) {
+                ret_value = -ENOTRECOVERABLE;
+                goto error1;
+            }
+            if (conf->block_size != 0 && conf->block_size != handler_conf->block_size) {
+                ret_value = -ENOTRECOVERABLE;
+                goto error1;
+            }
+            if (conf->hash_type != 0 && conf->hash_type != handler_conf->hash_type) {
+                ret_value = -ENOTRECOVERABLE;
+                goto error1;
+            }
+            if (conf->hash_length != 0 && conf->hash_length != handler_conf->hash_length) {
+                ret_value = -ENOTRECOVERABLE;
+                goto error1;
+            }
+            if (conf->hash_split != 0 && conf->hash_split != handler_conf->hash_split) {
+                ret_value = -ENOTRECOVERABLE;
+                goto error1;
+            }
+            if (conf->hash_split_size != 0 && conf->hash_split_size != handler_conf->hash_split_size) {
+                ret_value = -ENOTRECOVERABLE;
+                goto error1;
+            }
+            if (conf->bytes_link_counter != 0 && conf->bytes_link_counter != handler_conf->bytes_link_counter) {
+                ret_value = -ENOTRECOVERABLE;
+                goto error1;
+            }
+
         }
         else {
             memcpy(handler_conf, conf, sizeof(struct block_handler_conf));
+
+            if (handler_conf->blocks_path[0] == 0) strncpy(handler_conf->blocks_path, DEFAULT_BLOCKS_PATH, PATH_MAX);
+            if (handler_conf->block_size == 0) handler_conf->block_size = DEFAULT_BLOCK_SIZE;
+            if (handler_conf->hash_type == 0) handler_conf->hash_type = DEFAULT_HASH_TYPE;
+            if (handler_conf->hash_length == 0) handler_conf->hash_length = DEFAULT_HASH_LENGTH;
+            if (handler_conf->hash_split == 0) handler_conf->hash_split = DEFAULT_HASH_SPLIT;
+            if (handler_conf->hash_split_size == 0) handler_conf->hash_split_size = DEFAULT_HASH_SPLIT_SIZE;
+            if (handler_conf->bytes_link_counter == 0) handler_conf->bytes_link_counter = DEFAULT_BYTES_LINK_COUNTER;
+
+            if (!check_conf(handler_conf)) {
+                ret_value = -ENOTRECOVERABLE;
+                goto error1;
+            }
+
             if ((ret_value = write_conf_file()) < 0) {
                 goto error1;
             }
