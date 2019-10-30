@@ -18,6 +18,14 @@
 struct block_handler_conf* handler_conf = NULL;
 char fs_path[PATH_MAX];
 
+int check_conf(struct block_handler_conf* conf) {
+    // TODO complete
+    if (conf->block_size <= 0) {
+        return FALSE;
+    }
+    return TRUE;
+}
+
 /*
  * create configuration file and write it
  * handler_conf should be allocated and
@@ -133,12 +141,6 @@ int read_conf_file(char *blocks_path) {
         ret_value = -EIO;
         goto out;
     }
-    if (handler_conf->block_size <= 0) {
-        ret_value = -ENOTRECOVERABLE;
-        goto out;
-    }
-
-    // TODO check read values
     if (fread(&handler_conf->hash_type, 4, 1, conf_file) != 1) {
         ret_value = -EIO;
         goto out;
@@ -158,6 +160,10 @@ int read_conf_file(char *blocks_path) {
     if (fread(&handler_conf->bytes_link_counter, 4, 1, conf_file) != 1) {
         ret_value = -EIO;
         goto out;
+    }
+
+    if (!check_conf(handler_conf)) {
+        ret_value = -ENOTRECOVERABLE;
     }
 
     out:
@@ -187,7 +193,7 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
     if ((handler_conf = malloc(sizeof(struct block_handler_conf))) == NULL) {
         // TODO man malloc no errno?
         ret_value = -1;
-        goto error0:
+        goto error0;
     }
 
 
