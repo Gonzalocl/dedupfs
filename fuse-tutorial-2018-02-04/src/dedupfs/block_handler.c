@@ -127,8 +127,11 @@ int read_conf_file(char *blocks_path) {
         return -errno;
     }
 
-    // TODO check this can be negative
     if (fread(&path_length, 4, 1, conf_file) != 1) {
+        ret_value = -EIO;
+        goto out;
+    }
+    if (path_length < 0 || path_length >= PATH_MAX) {
         ret_value = -EIO;
         goto out;
     }
@@ -136,6 +139,7 @@ int read_conf_file(char *blocks_path) {
         ret_value = -EIO;
         goto out;
     }
+    handler_conf->blocks_path[path_length] = '\0';
 
     if (fread(&handler_conf->block_size, 4, 1, conf_file) != 1) {
         ret_value = -EIO;
