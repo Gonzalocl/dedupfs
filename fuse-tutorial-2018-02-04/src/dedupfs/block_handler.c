@@ -13,6 +13,8 @@
 
 #define CONF_FILENAME "conf"
 
+#define HASHES_SUPPORTED 2
+int hash_length[HASHES_SUPPORTED] = {16, 20};
 
 
 struct block_handler_conf* handler_conf = NULL;
@@ -23,6 +25,28 @@ int check_conf(struct block_handler_conf* conf) {
     if (conf->block_size <= 0) {
         return FALSE;
     }
+
+    if (conf->hash_type <= 0 || conf->hash_type > HASHES_SUPPORTED) {
+        return FALSE;
+    }
+    if (conf->hash_length != hash_length[conf->hash_type-1]) {
+        return FALSE;
+    }
+
+    if (conf->hash_split < 0) {
+        return FALSE;
+    }
+    if (conf->hash_split_size <= 0) {
+        return FALSE;
+    }
+    if ( (conf->hash_split*conf->hash_split_size) >= conf->hash_length) {
+        return FALSE;
+    }
+
+    if (conf->bytes_link_counter <= 0) {
+        return FALSE;
+    }
+
     return TRUE;
 }
 
