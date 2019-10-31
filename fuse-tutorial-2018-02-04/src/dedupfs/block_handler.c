@@ -333,23 +333,27 @@ int block_handler_end() {
     return 0;
 }
 
-int block_create(char *hash, char *data) {
-    if (handler_conf == NULL) {
-        // TODO
-        // TODO call init?
-        return -1;
-    }
-    if (hash == NULL) {
-        // TODO
-        return -2;
-    }
-    if (data == NULL) {
-        // TODO
-        return -3;
-    }
+int get_block_path(char *block_path, char *hash) {
 
-    // TODO
-    char block_path[4096];
+    return 0;
+}
+
+int block_create(char *hash, char *data) {
+//    if (handler_conf == NULL) {
+//        // TODO
+//        // TODO call init?
+//        return -1;
+//    }
+//    if (hash == NULL) {
+//        // TODO
+//        return -2;
+//    }
+//    if (data == NULL) {
+//        // TODO
+//        return -3;
+//    }
+
+    char block_path[PATH_MAX];
 //    sprintf(block_path, "%s/%02x/%02x", handler_conf->blocks_path, hash[0], hash[1]);
     if (access(block_path, F_OK) != -1) {
         // file exists increase link counter
