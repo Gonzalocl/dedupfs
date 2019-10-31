@@ -32,6 +32,7 @@ int main (int argc, char *argv[]) {
     EVP_DigestFinal_ex(ctx, hash, &hash_len);
     EVP_MD_CTX_free(ctx);
 
+    printf("Hash len: %d\n", hash_len);
     printf("Hash: ");
     for (int i = 0; i < hash_len; i++) {
         printf("%02x", hash[i]);
