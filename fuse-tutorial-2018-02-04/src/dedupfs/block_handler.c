@@ -364,6 +364,20 @@ int get_block_path(char *block_path, unsigned char *hash) {
     return 0;
 }
 
+int create_parents(unsigned char *hash) {
+    // TODO cd + mkdir + ... or mkdir + mkdir + ...
+    int chars;
+    if ((chars = snprintf(block_path, PATH_MAX, "%s/%s/", fs_path, handler_conf->blocks_path)) < 0) {
+        return -1;
+    }
+    if ((chars + handler_conf->hash_length*2 + handler_conf->hash_split + 1) > PATH_MAX) {
+        return -1;
+    }
+
+}
+
+int delete_path(unsigned)
+
 int block_create(unsigned char *hash, char *data) {
 //    if (handler_conf == NULL) {
 //        // TODO
