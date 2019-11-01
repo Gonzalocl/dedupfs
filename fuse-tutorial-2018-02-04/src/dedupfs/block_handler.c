@@ -336,12 +336,40 @@ int block_handler_end() {
     return 0;
 }
 
-int get_block_path(char *block_path, char *hash) {
-
+int get_block_path(char *block_path, unsigned char *hash) {
+    int chars;
+    if ((chars = snprintf(block_path, PATH_MAX, "%s/%s/", fs_path, handler_conf->blocks_path)) < 0) {
+        return -1;
+    }
+    if ((chars + handler_conf->hash_length*2 + handler_conf->hash_split + 1) > PATH_MAX) {
+        return -1;
+    }
+    // TODO
+    printf("len: %d\n", chars + handler_conf->hash_length*2 + handler_conf->hash_split + 1);
+    // TODO optimize this?
+    for (int i = 0; i < handler_conf->hash_split; i++) {
+        for (int j = 0; j < handler_conf->hash_split_size; j++) {
+            if (sprintf(block_path + chars, "%02x", hash[handler_conf->hash_split_size*i + j]) < 0) {
+                return -1;
+            }
+            chars += 2;
+        }
+        block_path[chars] = '/';
+        chars++;
+    }
+    for (int i = handler_conf->hash_split*handler_conf->hash_split_size; i < handler_conf->hash_length; i++) {
+        if (sprintf(block_path + chars, "%02x", hash[i]) < 0) {
+            return -1;
+        }
+        chars += 2;
+    }
+    // TODO check length
+    printf("chars: %d\n", chars);
+    printf("p: %s\n", block_path);
     return 0;
 }
 
-int block_create(char *hash, char *data) {
+int block_create(unsigned char *hash, char *data) {
 //    if (handler_conf == NULL) {
 //        // TODO
 //        // TODO call init?
@@ -357,7 +385,11 @@ int block_create(char *hash, char *data) {
 //    }
 
     char block_path[PATH_MAX];
-//    sprintf(block_path, "%s/%02x/%02x", handler_conf->blocks_path, hash[0], hash[1]);
+    if (get_block_path(block_path, hash) != 0) {
+        // TODO goto and retvalue
+        return -1;
+    }
+    return 0;
     if (access(block_path, F_OK) != -1) {
         // file exists increase link counter
         int link_counter;
@@ -385,7 +417,7 @@ int block_create(char *hash, char *data) {
     return 0;
 }
 
-int block_delete(char *hash) {
+int block_delete(unsigned char *hash) {
     if (handler_conf == NULL) {
         // TODO
         // TODO call init?
@@ -400,7 +432,7 @@ int block_delete(char *hash) {
 }
 
 
-int block_read(char *hash, char *data) {
+int block_read(unsigned char *hash, char *data) {
     if (handler_conf == NULL) {
         // TODO
         // TODO call init?
