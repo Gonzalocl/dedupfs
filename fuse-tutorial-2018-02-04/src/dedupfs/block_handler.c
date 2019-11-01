@@ -64,7 +64,10 @@ int write_conf_file() {
     int ret_value = 0;
     int folder_created = FALSE;
 
-    if (mkdir(handler_conf->blocks_path, 0755) != 0) {
+    if (snprintf(path, PATH_MAX, "%s/%s", fs_path, handler_conf->blocks_path) < 0) {
+        return -EIO;
+    }
+    if (mkdir(path, 0755) != 0) {
         if (errno != EEXIST) {
             return -errno;
         }
