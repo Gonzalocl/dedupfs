@@ -344,8 +344,6 @@ int get_block_path(char *block_path, unsigned char *hash) {
     if ((chars + handler_conf->hash_length*2 + handler_conf->hash_split + 1) > PATH_MAX) {
         return -1;
     }
-    // TODO
-    printf("len: %d\n", chars + handler_conf->hash_length*2 + handler_conf->hash_split + 1);
     // TODO optimize this?
     for (int i = 0; i < handler_conf->hash_split; i++) {
         for (int j = 0; j < handler_conf->hash_split_size; j++) {
@@ -363,9 +361,6 @@ int get_block_path(char *block_path, unsigned char *hash) {
         }
         chars += 2;
     }
-    // TODO check length
-    printf("chars: %d\n", chars);
-    printf("p: %s\n", block_path);
     return 0;
 }
 
