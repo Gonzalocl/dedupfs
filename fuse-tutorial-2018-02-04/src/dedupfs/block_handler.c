@@ -336,11 +336,13 @@ int block_handler_end() {
     return 0;
 }
 
+// TODO return -errno (-EIO)
 int get_block_path(char *block_path, unsigned char *hash) {
     int chars;
     if ((chars = snprintf(block_path, PATH_MAX, "%s/%s/", fs_path, handler_conf->blocks_path)) < 0) {
         return -1;
     }
+    // TODO make this check anywhere else only once
     if ((chars + handler_conf->hash_length*2 + handler_conf->hash_split + 1) > PATH_MAX) {
         return -1;
     }
@@ -364,19 +366,44 @@ int get_block_path(char *block_path, unsigned char *hash) {
     return 0;
 }
 
+// TODO return -errno (-EIO)
 int create_parents(unsigned char *hash) {
-    // TODO cd + mkdir + ... or mkdir + mkdir + ...
+    char block_path[PATH_MAX];
     int chars;
     if ((chars = snprintf(block_path, PATH_MAX, "%s/%s/", fs_path, handler_conf->blocks_path)) < 0) {
         return -1;
     }
+    // TODO make this check anywhere else only once
     if ((chars + handler_conf->hash_length*2 + handler_conf->hash_split + 1) > PATH_MAX) {
         return -1;
     }
-
+    // TODO optimize this?
+    for (int i = 0; i < handler_conf->hash_split; i++) {
+        for (int j = 0; j < handler_conf->hash_split_size; j++) {
+            if (sprintf(block_path + chars, "%02x", hash[handler_conf->hash_split_size*i + j]) < 0) {
+                // TODO goto error undo mkdir done
+                return -1;
+            }
+            chars += 2;
+        }
+        if (mkdir(block_path, 0755) != 0) {
+            if (errno != EEXIST) {
+                // TODO goto error undo mkdir done
+                return -errno;
+            }
+        }
+        else {
+            // TODO take note folder created in case it has to be undone
+        }
+        block_path[chars] = '/';
+        chars++;
+    }
+    return 0;
 }
 
-int delete_path(unsigned)
+int delete_path(unsigned char *hash) {
+    return 0;
+}
 
 int block_create(unsigned char *hash, char *data) {
 //    if (handler_conf == NULL) {
