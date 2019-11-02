@@ -425,8 +425,8 @@ int block_create(unsigned char *hash, char *data) {
     int link_counter;
     char block_path[PATH_MAX];
     
-    if (get_block_path(block_path, hash) != 0) {
-        return -EIO;
+    if ((ret_value = get_block_path(block_path, hash)) != 0) {
+        return ret_value;
     }
     if (access(block_path, F_OK) == 0) {
         // file exists increase link counter
@@ -462,6 +462,26 @@ int block_create(unsigned char *hash, char *data) {
     }
     else {
         // file doesn't exist create with link counter to 1
+        // TODO undo this if error with delete path
+        if ((ret_value = create_parents(hash)) != 0) {
+            return ret_value;
+        }
+
+        if ((block = fopen(block_path, "w")) == NULL) {
+            return -errno;
+        }
+
+        if (fwrite(data, 1, handler_conf->block_size, block) != handler_conf->block_size) {
+            ret_value = -EIO;
+            goto out;
+        }
+
+        link_counter = 1;
+
+        if (fwrite(&link_counter, handler_conf->bytes_link_counter, 1, block) != 1) {
+            ret_value = -EIO;
+            goto out;
+        }
 
     }
 
