@@ -494,17 +494,60 @@ int block_create(unsigned char *hash, char *data) {
 }
 
 int block_delete(unsigned char *hash) {
-    if (handler_conf == NULL) {
-        // TODO
-        // TODO call init?
-        return -1;
+//    if (handler_conf == NULL) {
+//         TODO
+//         TODO call init?
+//        return -1;
+//    }
+//    if (hash == NULL) {
+//         TODO
+//        return -2;
+//    }
+    int ret_value = 0;
+    FILE *block;
+    int link_counter;
+    char block_path[PATH_MAX];
+
+    if ((ret_value = get_block_path(block_path, hash)) != 0) {
+        return ret_value;
     }
-    if (hash == NULL) {
-        // TODO
-        return -2;
+    if ((block = fopen(block_path, "r+b")) == NULL) {
+        return -errno;
+    }
+    // TODO is it more efficient with seek end?
+    if (fseek(block, handler_conf->block_size, SEEK_SET) != 0) {
+        ret_value = -errno;
+        goto out;
     }
 
-    return 0;
+    if (fread(&link_counter, handler_conf->bytes_link_counter, 1, block) != 1) {
+        ret_value = -EIO;
+        goto out;
+    }
+
+    if (link_counter == 1) {
+        // delete block and path
+    }
+    else {
+        // decrease link_counter
+        link_counter--;
+
+        if (fseek(block, handler_conf->block_size, SEEK_SET) != 0) {
+            ret_value = -errno;
+            goto out;
+        }
+
+        if (fwrite(&link_counter, handler_conf->bytes_link_counter, 1, block) != 1) {
+            ret_value = -EIO;
+            goto out;
+        }
+    }
+
+    out:
+    if (fclose(block) != 0) {
+        return -errno;
+    }
+    return ret_value;
 }
 
 
