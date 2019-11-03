@@ -4,7 +4,7 @@
 #include <limits.h>
 
 #define DEFAULT_BLOCKS_PATH "blocks"
-#define DEFAULT_BLOCK_SIZE 32
+#define DEFAULT_BLOCK_SIZE 4096
 #define DEFAULT_HASH_TYPE 1
 #define DEFAULT_HASH_LENGTH 16
 #define DEFAULT_HASH_SPLIT 2

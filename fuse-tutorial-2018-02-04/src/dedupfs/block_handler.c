@@ -260,7 +260,7 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
             goto error1;
         }
 
-        if (access(conf->blocks_path, F_OK)) {
+        if (access(path, F_OK) == 0) {
             if ((ret_value = read_conf_file(DEFAULT_BLOCKS_PATH)) < 0) {
                 goto error1;
             }
