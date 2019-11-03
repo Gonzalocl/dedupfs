@@ -261,7 +261,7 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
         }
 
         if (access(path, F_OK) == 0) {
-            if ((ret_value = read_conf_file(DEFAULT_BLOCKS_PATH)) < 0) {
+            if ((ret_value = read_conf_file(conf->blocks_path)) < 0) {
                 goto error1;
             }
             if (conf->blocks_path[0] != 0 && strncmp(conf->blocks_path, handler_conf->blocks_path, PATH_MAX) != 0) {
