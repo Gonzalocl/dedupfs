@@ -517,16 +517,29 @@ int block_delete(unsigned char *hash) {
     // TODO is it more efficient with seek end?
     if (fseek(block, handler_conf->block_size, SEEK_SET) != 0) {
         ret_value = -errno;
-        goto out;
+        goto error;
     }
 
     if (fread(&link_counter, handler_conf->bytes_link_counter, 1, block) != 1) {
         ret_value = -EIO;
-        goto out;
+        goto error;
     }
 
     if (link_counter == 1) {
         // delete block and path
+        if (fclose(block) != 0) {
+            return -errno;
+        }
+
+        if (unlink(block_path) != 0) {
+            // TODO no undo?
+            return -errno;
+        }
+
+        if ((ret_value = delete_path(hsah)) != 0) {
+            return ret_value;
+        }
+
     }
     else {
         // decrease link_counter
@@ -534,16 +547,22 @@ int block_delete(unsigned char *hash) {
 
         if (fseek(block, handler_conf->block_size, SEEK_SET) != 0) {
             ret_value = -errno;
-            goto out;
+            goto error;
         }
 
         if (fwrite(&link_counter, handler_conf->bytes_link_counter, 1, block) != 1) {
             ret_value = -EIO;
-            goto out;
+            goto error;
         }
+
+        if (fclose(block) != 0) {
+            return -errno;
+        }
+
     }
 
-    out:
+    return 0;
+    error:
     if (fclose(block) != 0) {
         return -errno;
     }
