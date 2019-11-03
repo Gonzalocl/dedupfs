@@ -571,20 +571,41 @@ int block_delete(unsigned char *hash) {
 
 
 int block_read(unsigned char *hash, char *data) {
-    if (handler_conf == NULL) {
-        // TODO
-        // TODO call init?
-        return -1;
-    }
-    if (hash == NULL) {
-        // TODO
-        return -2;
-    }
-    if (data == NULL) {
-        // TODO
-        return -3;
+//    if (handler_conf == NULL) {
+//        // TODO
+//        // TODO call init?
+//        return -1;
+//    }
+//    if (hash == NULL) {
+//        // TODO
+//        return -2;
+//    }
+//    if (data == NULL) {
+//        // TODO
+//        return -3;
+//    }
+
+    int ret_value = 0;
+    FILE *block;
+    char block_path[PATH_MAX];
+
+    if ((ret_value = get_block_path(block_path, hash)) != 0) {
+        return ret_value;
     }
 
-    return 0;
+    if ((block = fopen(block_path, "rb")) == NULL) {
+        return -errno;
+    }
+
+    if (fread(data, 1, handler_conf->block_size, block) != handler_conf->block_size) {
+        // no goto because it is the same
+        ret_value = -EIO;
+    }
+
+    if (fclose(block) != 0) {
+        return -errno;
+    }
+
+    return ret_value;
 }
 
