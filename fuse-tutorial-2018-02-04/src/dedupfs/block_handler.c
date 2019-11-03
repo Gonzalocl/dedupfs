@@ -401,7 +401,8 @@ int create_parents(unsigned char *hash) {
     return 0;
 }
 
-int delete_path(unsigned char *hash) {
+int delete_block_path(char *block_path) {
+    // TODO
     return 0;
 }
 
@@ -536,7 +537,7 @@ int block_delete(unsigned char *hash) {
             return -errno;
         }
 
-        if ((ret_value = delete_path(hash)) != 0) {
+        if ((ret_value = delete_block_path(block_path)) != 0) {
             return ret_value;
         }
 
