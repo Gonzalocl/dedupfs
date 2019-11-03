@@ -536,7 +536,7 @@ int block_delete(unsigned char *hash) {
             return -errno;
         }
 
-        if ((ret_value = delete_path(hsah)) != 0) {
+        if ((ret_value = delete_path(hash)) != 0) {
             return ret_value;
         }
 
