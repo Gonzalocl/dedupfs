@@ -1,12 +1,23 @@
 #ifndef FILE_HANDLER_H
 #define FILE_HANDLER_H
 
+#include <limits.h>
+
+
+struct file_handler_conf {
+    char files_path[PATH_MAX];
+    char blocks_path[PATH_MAX];
+    int block_size;
+    int hash_type;
+    int hash_length;
+    int hash_split;
+    int hash_split_size;
+    int bytes_link_counter;
+};
 
 
 
-
-
-int file_init();
+int file_init(const char *fs, struct file_handler_conf *conf);
 
 int file_getattr(const char *path, struct stat *stat_buf);
 int file_mknod(const char *path, mode_t mode);
