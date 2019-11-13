@@ -17,10 +17,10 @@
 int hash_length[HASHES_SUPPORTED] = {16, 20};
 
 
-struct block_handler_conf* handler_conf = NULL;
+struct block_handler_conf *handler_conf = NULL;
 char fs_path[PATH_MAX];
 
-int check_conf(struct block_handler_conf* conf) {
+int check_conf(struct block_handler_conf *conf) {
     // TODO complete
     if (conf->block_size <= 0) {
         return FALSE;
