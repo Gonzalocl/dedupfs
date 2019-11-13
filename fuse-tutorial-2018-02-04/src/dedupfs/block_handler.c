@@ -11,7 +11,7 @@
 #define TRUE (0==0)
 #define FALSE (!TRUE)
 
-#define BLOCK_CONF "conf"
+#define BLOCK_CONF "block_conf"
 
 #define HASHES_SUPPORTED 2
 int hash_length[HASHES_SUPPORTED] = {16, 20};
