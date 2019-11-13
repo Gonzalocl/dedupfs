@@ -6,18 +6,15 @@
 #include <unistd.h>
 #include <limits.h>
 
+#include "block_handler.h"
+
 #define DEFAULT_FILES_PATH "files"
 
 struct file_handler_conf {
     char fs_path[PATH_MAX];
     char files_path[PATH_MAX];
-    char blocks_path[PATH_MAX];
-    int block_size;
     int hash_type;
-    int hash_length;
-    int hash_split;
-    int hash_split_size;
-    int bytes_link_counter;
+    struct block_handler_conf block_handler;
 };
 
 
