@@ -20,7 +20,7 @@ int hash_length[HASHES_SUPPORTED] = {16, 20};
 struct block_handler_conf *handler_conf = NULL;
 char fs_path[PATH_MAX];
 
-int check_conf(struct block_handler_conf *conf) {
+static int check_conf(struct block_handler_conf *conf) {
     // TODO complete
     if (conf->block_size <= 0) {
         return FALSE;
@@ -55,7 +55,7 @@ int check_conf(struct block_handler_conf *conf) {
  * handler_conf should be allocated and
  * fs_path set
  */
-int write_conf_file() {
+static int write_conf_file() {
 
     // TODO use open read write?
     // TODO delete if error
@@ -137,7 +137,7 @@ int write_conf_file() {
  * file should exist handler_conf allocated and
  * fs_path set
  */
-int read_conf_file(char *blocks_path) {
+static int read_conf_file(char *blocks_path) {
 
     // TODO use open read write?
     char path[PATH_MAX];
@@ -336,7 +336,7 @@ int block_handler_end() {
 }
 
 // TODO return -errno (-EIO)
-int get_block_path(char *block_path, unsigned char *hash) {
+static int get_block_path(char *block_path, unsigned char *hash) {
     int chars;
     if ((chars = snprintf(block_path, PATH_MAX, "%s/%s/", fs_path, handler_conf->blocks_path)) < 0) {
         return -1;
@@ -366,7 +366,7 @@ int get_block_path(char *block_path, unsigned char *hash) {
 }
 
 // TODO return -errno (-EIO)
-int create_parents(unsigned char *hash) {
+static int create_parents(unsigned char *hash) {
     char block_path[PATH_MAX];
     int chars;
     if ((chars = snprintf(block_path, PATH_MAX, "%s/%s/", fs_path, handler_conf->blocks_path)) < 0) {
@@ -400,7 +400,7 @@ int create_parents(unsigned char *hash) {
     return 0;
 }
 
-int delete_block_path(char *block_path) {
+static int delete_block_path(char *block_path) {
     // TODO
     return 0;
 }
