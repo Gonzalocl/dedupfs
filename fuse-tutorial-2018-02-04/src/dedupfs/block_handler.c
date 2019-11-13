@@ -222,8 +222,7 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
 //    }
 
     if ((handler_conf = malloc(sizeof(struct block_handler_conf))) == NULL) {
-        // TODO man malloc no errno?
-        ret_value = -1;
+        ret_value = -errno;
         goto error0;
     }
 
