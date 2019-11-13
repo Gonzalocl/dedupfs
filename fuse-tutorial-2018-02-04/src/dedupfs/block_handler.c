@@ -11,7 +11,7 @@
 #define TRUE (0==0)
 #define FALSE (!TRUE)
 
-#define CONF_FILENAME "conf"
+#define BLOCK_CONF "conf"
 
 #define HASHES_SUPPORTED 2
 int hash_length[HASHES_SUPPORTED] = {16, 20};
@@ -76,7 +76,7 @@ int write_conf_file() {
         folder_created = TRUE;
     }
 
-    if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, handler_conf->blocks_path, CONF_FILENAME) < 0) {
+    if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, handler_conf->blocks_path, BLOCK_CONF) < 0) {
         return -EIO;
     }
 
@@ -145,7 +145,7 @@ int read_conf_file(char *blocks_path) {
     int ret_value = 0;
 
 
-    if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, blocks_path, CONF_FILENAME) < 0) {
+    if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, blocks_path, BLOCK_CONF) < 0) {
         return -EIO;
     }
 
@@ -229,7 +229,7 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
 
     if (conf == NULL) {
 
-        if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, DEFAULT_BLOCKS_PATH, CONF_FILENAME) < 0) {
+        if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, DEFAULT_BLOCKS_PATH, BLOCK_CONF) < 0) {
             ret_value = -EIO;
             goto error1;
         }
@@ -254,7 +254,7 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
     }
     else {
 
-        if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, conf->blocks_path, CONF_FILENAME) < 0) {
+        if (snprintf(path, PATH_MAX, "%s/%s/%s", fs_path, conf->blocks_path, BLOCK_CONF) < 0) {
             ret_value = -EIO;
             goto error1;
         }
