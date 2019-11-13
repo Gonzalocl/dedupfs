@@ -1,8 +1,12 @@
 #ifndef FILE_HANDLER_H
 #define FILE_HANDLER_H
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <limits.h>
 
+#define DEFAULT_FILES_PATH "files"
 
 struct file_handler_conf {
     char files_path[PATH_MAX];
@@ -17,7 +21,7 @@ struct file_handler_conf {
 
 
 
-int file_init(const char *fs, struct file_handler_conf *conf);
+int file_handler_init(const char *fs, struct file_handler_conf *conf);
 
 int file_getattr(const char *path, struct stat *stat_buf);
 int file_mknod(const char *path, mode_t mode);
