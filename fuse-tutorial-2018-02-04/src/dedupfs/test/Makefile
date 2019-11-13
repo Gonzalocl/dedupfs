@@ -8,8 +8,12 @@ OBJ := $(patsubst %.c, bin/%, $(SRC))
 
 all: $(OBJ)
 
-bin/%: %.c bin/block_handler.o bin/file_handler.o
+
+bin/test_%: test_%.c bin/block_handler.o bin/file_handler.o
 	gcc -o $@ bin/block_handler.o bin/file_handler.o $<
+bin/test_static_%: test_static_%.c
+	gcc -o $@ $<
+
 
 
 
