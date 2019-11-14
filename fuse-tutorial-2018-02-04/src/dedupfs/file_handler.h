@@ -13,6 +13,7 @@
 struct file_handler_conf {
     char fs_path[PATH_MAX];
     char files_path[PATH_MAX];
+    char full_files_path[PATH_MAX];
     int hash_type;
     struct block_handler_conf block_handler;
 };
