@@ -26,6 +26,7 @@ static int read_conf_file(struct file_handler_conf *conf, char *blocks_path);
 // TODO
 int file_handler_init(struct file_handler_conf *conf) {
     snprintf(conf->full_files_path, PATH_MAX, "%s/%s", conf->fs_path, conf->files_path);
+    mkdir(conf->full_files_path, 0755);
     return block_handler_init(conf->fs_path, &conf->block_handler);
 
 //    char path[PATH_MAX];
