@@ -13,6 +13,8 @@
 
 #define FILE_CONF "file_conf"
 
+#define HASHES_SUPPORTED 2
+static int hash_length[HASHES_SUPPORTED] = {16, 20};
 
 static void get_full_path(struct file_handler_conf *conf, char *full_path, const char *relative_path) {
     snprintf(full_path, PATH_MAX, "%s/%s", conf->full_files_path, relative_path);
@@ -27,6 +29,9 @@ static int read_conf_file(struct file_handler_conf *conf, char *blocks_path);
 int file_handler_init(struct file_handler_conf *conf) {
     snprintf(conf->full_files_path, PATH_MAX, "%s/%s", conf->fs_path, conf->files_path);
     mkdir(conf->full_files_path, 0755);
+    conf->block_handler.hash_type = conf->hash_type;
+    conf->block_handler.hash_length = hash_length[conf->hash_type-1];
+    conf->block_handler.bytes_link_counter = DEFAULT_BYTES_LINK_COUNTER;
     return block_handler_init(conf->fs_path, &conf->block_handler);
 
 //    char path[PATH_MAX];
