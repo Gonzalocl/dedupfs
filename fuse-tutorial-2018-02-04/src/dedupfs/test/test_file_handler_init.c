@@ -22,8 +22,10 @@ int main (int argc, char *argv[]) {
     conf.block_handler.hash_split = atoi(argv[6]);
     conf.block_handler.hash_split_size = atoi(argv[7]);
 
+    char *path = argv[8];
+
     unsigned char data[conf.block_handler.block_size];
-    strncpy(data, argv[8], conf.block_handler.block_size);
+    strncpy(data, argv[9], conf.block_handler.block_size);
 
     int ret;
     if ((ret = file_handler_init(&conf)) < 0) {
