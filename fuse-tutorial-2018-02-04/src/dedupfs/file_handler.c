@@ -61,7 +61,6 @@ int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
     int ret_value = 0;
 
     get_full_path(conf, full_path, path);
-    printf("==>>%s\n", full_path);
 
     if ((fd = open(full_path, O_CREAT | O_EXCL | O_WRONLY, mode)) == -1) {
         return -errno;
