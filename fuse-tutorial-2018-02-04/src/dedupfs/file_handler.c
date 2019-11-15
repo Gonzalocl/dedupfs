@@ -63,7 +63,7 @@ int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *
 
     get_full_path(conf, full_path, path);
 
-    if ((fd = open(full_path, O_CREAT | O_EXCL | O_WRONLY, mode)) == -1) {
+    if ((fd = open(full_path, O_RDONLY)) == -1) {
         return -errno;
     }
 
@@ -87,10 +87,11 @@ int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *
     }
 
     stat_buf->st_size = file_size;
+    // TODO ?
     stat_buf->st_blksize = conf->block_handler.block_size;
-    // TODO
-//    stat_buf->st_blocks = (file_size/stat_buf->st_blksize) == 0 ? file_size/stat_buf->st_blksize : file_size/stat_buf->st_blksize + 1;
-    stat_buf->st_blocks = (file_size/512) == 0 ? file_size/512 : file_size/512 + 1;
+    stat_buf->st_blocks = (file_size % stat_buf->st_blksize) == 0 ? file_size/stat_buf->st_blksize : file_size/stat_buf->st_blksize + 1;
+//    stat_buf->st_blksize = 512;
+//    stat_buf->st_blocks = (file_size % 512) == 0 ? file_size/512 : file_size/512 + 1;
 
     return ret_value;
 }
