@@ -17,7 +17,7 @@
 static int hash_length[HASHES_SUPPORTED] = {16, 20};
 
 static void get_full_path(struct file_handler_conf *conf, char *full_path, const char *relative_path) {
-    snprintf(full_path, PATH_MAX, "%s/%s", conf->full_files_path, relative_path);
+    snprintf(full_path, PATH_MAX, "%s%s", conf->full_files_path, relative_path);
 }
 
 // TODO
@@ -61,8 +61,9 @@ int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
     int ret_value = 0;
 
     get_full_path(conf, full_path, path);
+    printf("==>>%s\n", full_path);
 
-    if ((fd = open(path, O_CREAT | O_EXCL | O_WRONLY, mode)) == -1) {
+    if ((fd = open(full_path, O_CREAT | O_EXCL | O_WRONLY, mode)) == -1) {
         return -errno;
     }
 
