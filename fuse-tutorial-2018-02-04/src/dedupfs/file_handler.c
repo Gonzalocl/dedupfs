@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "file_handler.h"
 
@@ -45,7 +48,35 @@ int file_handler_init(struct file_handler_conf *conf) {
 }
 
 int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *stat_buf);
-int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode);
+int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
+
+    char full_path[PATH_MAX];
+    int fd;
+    int ret_value = 0;
+
+    get_full_path(conf, full_path, path);
+
+    if ((fd = open(path, O_CREAT | O_EXCL | O_WRONLY, mode)) == -1) {
+        return -errno;
+    }
+
+    long file_size = 0;
+    if ((ret_value = write(fd, &file_size, 8)) < 8) {
+        if (ret_value < 0) {
+            ret_value = -errno;
+        }
+        else {
+            ret_value = -EIO;
+        }
+    }
+
+    if (close(fd) == -1) {
+        return -errno;
+    }
+
+    return ret_value;
+}
+
 int file_unlink(struct file_handler_conf *conf, const char *path);
 int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_size);
 int file_open(struct file_handler_conf *conf, const char *path, int flags);
