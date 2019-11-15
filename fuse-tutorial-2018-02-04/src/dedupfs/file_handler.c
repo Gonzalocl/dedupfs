@@ -12,6 +12,7 @@
 #define FALSE (!TRUE)
 
 #define FILE_CONF "file_conf"
+#define FILE_SIZE_BYTES 8
 
 #define HASHES_SUPPORTED 2
 static int hash_length[HASHES_SUPPORTED] = {16, 20};
@@ -53,8 +54,8 @@ int file_handler_init(struct file_handler_conf *conf) {
 //    return ret_value;
 }
 
-int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *stat_buf);
-int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
+// TODO check errors
+int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *stat_buf) {
 
     char full_path[PATH_MAX];
     int fd;
@@ -66,12 +67,54 @@ int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
         return -errno;
     }
 
-    long file_size = 0;
-    if ((ret_value = write(fd, &file_size, 8)) < 8) {
+    long file_size;
+    if ((ret_value = read(fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
         if (ret_value < 0) {
             ret_value = -errno;
         }
         else {
+            // TODO
+            ret_value = -EIO;
+        }
+    }
+
+    if (close(fd) == -1) {
+        return -errno;
+    }
+
+    if (lstat(full_path, stat_buf) == -1) {
+        return -errno;
+    }
+
+    stat_buf->st_size = file_size;
+    stat_buf->st_blksize = conf->block_handler.block_size;
+    // TODO
+//    stat_buf->st_blocks = (file_size/stat_buf->st_blksize) == 0 ? file_size/stat_buf->st_blksize : file_size/stat_buf->st_blksize + 1;
+    stat_buf->st_blocks = (file_size/512) == 0 ? file_size/512 : file_size/512 + 1;
+
+    return ret_value;
+}
+
+int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
+
+    // TODO delete if error?
+    char full_path[PATH_MAX];
+    int fd;
+    int ret_value = 0;
+
+    get_full_path(conf, full_path, path);
+
+    if ((fd = open(full_path, O_CREAT | O_EXCL | O_WRONLY, mode)) == -1) {
+        return -errno;
+    }
+
+    long file_size = 0;
+    if ((ret_value = write(fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+        if (ret_value < 0) {
+            ret_value = -errno;
+        }
+        else {
+            // TODO
             ret_value = -EIO;
         }
     }
