@@ -7,8 +7,10 @@
 #include <limits.h>
 
 #include "block_handler.h"
+#include "block_cache.h"
 
 #define DEFAULT_FILES_PATH "files"
+#define DEFAULT_FILE_OPEN_MAX 5
 
 struct file_handler_conf {
     char fs_path[PATH_MAX];
@@ -16,6 +18,9 @@ struct file_handler_conf {
     char full_files_path[PATH_MAX];
     int hash_type;
     struct block_handler_conf block_handler;
+    int file_open_max;
+    struct block_cache **caches;
+    int fd_counter;
 };
 
 
