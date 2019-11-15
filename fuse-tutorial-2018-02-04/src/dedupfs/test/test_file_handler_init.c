@@ -8,7 +8,7 @@
 
 int main (int argc, char *argv[]) {
 
-    if (argc != 9) {
+    if (argc != 10) {
         printf("ERROR\n");
         return EXIT_FAILURE;
     }
