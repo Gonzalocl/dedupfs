@@ -27,7 +27,6 @@ static int next_fd(struct file_handler_conf *conf) {
     int fd = conf->fd_counter;
     if (conf->caches[fd] == NULL) {
         conf->fd_counter = (fd + 1) % conf->file_open_max;
-        printf("Instant\n");
         return fd;
     }
 
@@ -37,12 +36,10 @@ static int next_fd(struct file_handler_conf *conf) {
         fd = (fd + 1) % conf->file_open_max;
 
     if (fd == conf->fd_counter) {
-        printf("Full\n");
         return -1;
     }
 
     conf->fd_counter = (fd + 1) % conf->file_open_max;
-    printf("Found\n");
     return fd;
 }
 
