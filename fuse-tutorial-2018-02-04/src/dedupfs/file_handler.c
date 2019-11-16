@@ -25,7 +25,7 @@ static void get_full_path(struct file_handler_conf *conf, char *full_path, const
 // TODO test this
 static int next_fd(struct file_handler_conf *conf) {
     int fd = conf->fd_counter;
-    if (conf->caches[fd] != NULL) {
+    if (conf->caches[fd] == NULL) {
         conf->fd_counter = (fd + 1) % conf->file_open_max;
         return fd;
     }
