@@ -10,7 +10,7 @@
 #include "block_cache.h"
 
 #define DEFAULT_FILES_PATH "files"
-#define DEFAULT_FILE_OPEN_MAX 5
+#define DEFAULT_FILE_OPEN_MAX 4096
 
 struct file_handler_conf {
     char fs_path[PATH_MAX];
