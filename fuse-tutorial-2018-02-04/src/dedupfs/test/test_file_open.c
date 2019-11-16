@@ -34,13 +34,26 @@ int main (int argc, char *argv[]) {
     }
 
 
-    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
-    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
-    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
-    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
-    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
-    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
-    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    conf.caches[3] = 0;              printf("Close\nfd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    conf.caches[1] = 0;              printf("Close\nfd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    conf.caches[1] = 0;              printf("Close\nfd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    conf.caches[0] = 0;              printf("Close\nfd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    conf.caches[0] = 0;              printf("Close\nfd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
+    ret = file_open(&conf, NULL, 0); printf("fd: %d, fd_co: %d, caches: %s/%s/%s/%s/%s\n\n", ret, conf.fd_counter, conf.caches[0]?"U":"F", conf.caches[1]?"U":"F", conf.caches[2]?"U":"F", conf.caches[3]?"U":"F", conf.caches[4]?"U":"F");
 
 
 
