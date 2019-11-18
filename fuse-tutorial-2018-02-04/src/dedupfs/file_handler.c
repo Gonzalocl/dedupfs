@@ -50,7 +50,9 @@ static int read_conf_file(struct file_handler_conf *conf, char *blocks_path);
 
 // TODO
 int file_handler_init(struct file_handler_conf *conf) {
-    snprintf(conf->full_files_path, PATH_MAX, "%s/%s", conf->fs_path, conf->files_path);
+    if (snprintf(conf->full_files_path, PATH_MAX, "%s/%s", conf->fs_path, conf->files_path) < 0) {
+        return -EIO;
+    }
     mkdir(conf->full_files_path, 0755);
     conf->block_handler.hash_type = conf->hash_type;
     conf->block_handler.hash_length = hash_length[conf->hash_type-1];
@@ -166,7 +168,7 @@ int file_open(struct file_handler_conf *conf, const char *path, int flags) {
 
     fd = next_fd(conf);
 
-    conf->caches[fd] = 1;
+    conf->caches[fd] = (struct block_cache*)1;
 
     return fd;
 
