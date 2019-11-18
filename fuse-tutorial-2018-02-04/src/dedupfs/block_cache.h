@@ -3,9 +3,6 @@
 
 #include "file_handler.h"
 
-
-struct block_cache;
-
 struct block_cache * cache_init(int fd, int size, struct file_handler_conf *file_handler);
 
 int cache_write(struct block_cache *cache, long block, const void *buf);
