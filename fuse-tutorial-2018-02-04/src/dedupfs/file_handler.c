@@ -18,6 +18,13 @@
 #define HASHES_SUPPORTED 2
 static int hash_length[HASHES_SUPPORTED] = {16, 20};
 
+
+struct file_descriptor {
+    int index_fd;
+    struct block_cache *cache;
+};
+
+
 static void get_full_path(struct file_handler_conf *conf, char *full_path, const char *relative_path) {
     snprintf(full_path, PATH_MAX, "%s%s", conf->full_files_path, relative_path);
 }
@@ -25,14 +32,14 @@ static void get_full_path(struct file_handler_conf *conf, char *full_path, const
 // TODO test this
 static int next_fd(struct file_handler_conf *conf) {
     int fd = conf->fd_counter;
-    if (conf->caches[fd] == NULL) {
+    if (conf->file_descriptors[fd] == NULL) {
         conf->fd_counter = (fd + 1) % conf->file_open_max;
         return fd;
     }
 
     fd = (fd + 1) % conf->file_open_max;
 
-    while (conf->caches[fd] != NULL && fd != conf->fd_counter)
+    while (conf->file_descriptors[fd] != NULL && fd != conf->fd_counter)
         fd = (fd + 1) % conf->file_open_max;
 
     if (fd == conf->fd_counter) {
@@ -59,10 +66,10 @@ int file_handler_init(struct file_handler_conf *conf) {
     conf->block_handler.bytes_link_counter = DEFAULT_BYTES_LINK_COUNTER;
     conf->file_open_max = DEFAULT_FILE_OPEN_MAX;
     conf->fd_counter = 0;
-    if ((conf->caches = malloc(conf->file_open_max * sizeof(struct block_cache *))) == NULL) {
+    if ((conf->file_descriptors = malloc(conf->file_open_max * sizeof(struct file_descriptor *))) == NULL) {
         return -errno;
     }
-    memset(conf->caches, 0, conf->file_open_max * sizeof(struct block_cache *));
+    memset(conf->file_descriptors, 0, conf->file_open_max * sizeof(struct block_cache *));
     return block_handler_init(conf->fs_path, &conf->block_handler);
 
 //    char path[PATH_MAX];
@@ -168,7 +175,7 @@ int file_open(struct file_handler_conf *conf, const char *path, int flags) {
 
     fd = next_fd(conf);
 
-    conf->caches[fd] = (struct block_cache*)1;
+    conf->file_descriptors[fd] = (struct block_cache*)1;
 
     return fd;
 

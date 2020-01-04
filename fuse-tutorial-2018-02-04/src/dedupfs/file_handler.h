@@ -19,7 +19,8 @@ struct file_handler_conf {
     int hash_type;
     struct block_handler_conf block_handler;
     int file_open_max;
-    struct block_cache **caches;
+    struct file_descriptor **file_descriptors;
+//    struct block_cache **caches;
     int fd_counter;
 };
 
