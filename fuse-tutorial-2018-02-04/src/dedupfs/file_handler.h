@@ -20,13 +20,14 @@ struct file_handler_conf {
     struct block_handler_conf block_handler;
     int file_open_max;
     struct file_descriptor **file_descriptors;
-//    struct block_cache **caches;
     int fd_counter;
 };
 
 
 
 int file_handler_init(struct file_handler_conf *conf);
+// TODO
+int file_handler_end(struct file_handler_conf *conf);
 
 int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *stat_buf);
 int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode);

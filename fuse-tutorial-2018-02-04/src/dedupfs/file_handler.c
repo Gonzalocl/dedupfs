@@ -171,25 +171,30 @@ int file_open(struct file_handler_conf *conf, const char *path, int flags) {
     int fd;
     int ret_value = 0;
 
-//    get_full_path(conf, full_path, path);
+    get_full_path(conf, full_path, path);
 
     fd = next_fd(conf);
 
-    conf->file_descriptors[fd] = (struct block_cache*)1;
-
-    return fd;
+    conf->file_descriptors[fd] = malloc(sizeof(struct file_descriptor));
 
     // TODO flags?
-//    if ((fd = open(full_path, O_RDWR)) == -1) {
-//        return -errno;
-//    }
+    if ((conf->file_descriptors[fd]->index_fd = open(full_path, O_RDWR)) == -1) {
+        return -errno;
+    }
 
-//    return ret_value;
+    //TODO size
+    conf->file_descriptors[fd]->cache = cache_init(fd, 0, conf);
+
+    return fd;
 }
 
 int file_read(struct file_handler_conf *conf, int fd, void *buf, size_t size, off_t offset);
 int file_write(struct file_handler_conf *conf, int fd, const void *buf, size_t size, off_t offset);
-int file_release(struct file_handler_conf *conf, int fd);
+int file_release(struct file_handler_conf *conf, int fd) {
+    close(conf->file_descriptors[fd]->index_fd);
+    cache_end(conf->file_descriptors[fd]->cache);
+    free(conf->file_descriptors[fd]);
+}
 int file_fsync(struct file_handler_conf *conf, int fd);
 int file_ftruncate(struct file_handler_conf *conf, int fd, off_t offset);
 int file_fgetattr(struct file_handler_conf *conf, int fd, struct stat *stat_buf);
