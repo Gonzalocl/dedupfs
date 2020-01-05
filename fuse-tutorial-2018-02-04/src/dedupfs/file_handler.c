@@ -7,7 +7,7 @@
 #include <fcntl.h>
 
 #include "file_handler.h"
-//#include "block_cache.h"
+#include "block_cache.h"
 
 #define TRUE (0==0)
 #define FALSE (!TRUE)
@@ -188,13 +188,20 @@ int file_open(struct file_handler_conf *conf, const char *path, int flags) {
     return fd;
 }
 
-int file_read(struct file_handler_conf *conf, int fd, void *buf, size_t size, off_t offset);
-int file_write(struct file_handler_conf *conf, int fd, const void *buf, size_t size, off_t offset);
+int file_read(struct file_handler_conf *conf, int fd, void *buf, size_t size, off_t offset) {
+
+}
+
+int file_write(struct file_handler_conf *conf, int fd, const void *buf, size_t size, off_t offset) {
+
+}
+
 int file_release(struct file_handler_conf *conf, int fd) {
     close(conf->file_descriptors[fd]->index_fd);
     cache_end(conf->file_descriptors[fd]->cache);
     free(conf->file_descriptors[fd]);
 }
+
 int file_fsync(struct file_handler_conf *conf, int fd);
 int file_ftruncate(struct file_handler_conf *conf, int fd, off_t offset);
 int file_fgetattr(struct file_handler_conf *conf, int fd, struct stat *stat_buf);

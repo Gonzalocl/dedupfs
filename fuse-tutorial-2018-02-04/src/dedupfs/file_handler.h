@@ -7,7 +7,6 @@
 #include <limits.h>
 
 #include "block_handler.h"
-#include "block_cache.h"
 
 #define DEFAULT_FILES_PATH "files"
 #define DEFAULT_FILE_OPEN_MAX 4096
