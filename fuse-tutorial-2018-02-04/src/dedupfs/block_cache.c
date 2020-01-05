@@ -2,11 +2,16 @@
 
 
 struct block_cache * cache_init(int fd, int size, struct file_handler_conf *file_handler) {
-    file_read(file_handler, fd, 0, 0, 0);
+
 }
 
-int cache_write(struct block_cache *cache, long block, const void *buf);
-int cache_read(struct block_cache *cache, long block, void *buf);
+int cache_write(struct block_cache *cache, const void *buf, size_t size, off_t offset) {
+
+}
+
+int cache_read(struct block_cache *cache, void *buf, size_t size, off_t offset) {
+
+}
 
 int cache_end(struct block_cache *cache) {
     return 0;
