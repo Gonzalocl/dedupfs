@@ -206,4 +206,11 @@ int file_fsync(struct file_handler_conf *conf, int fd);
 int file_ftruncate(struct file_handler_conf *conf, int fd, off_t offset);
 int file_fgetattr(struct file_handler_conf *conf, int fd, struct stat *stat_buf);
 
+int file_get_block_hash(struct file_handler_conf *conf, int fd, long block, unsigned char *hash) {
+
+}
+
+int file_set_block_hash(struct file_handler_conf *conf, int fd, long block, const unsigned char *hash) {
+
+}
 
