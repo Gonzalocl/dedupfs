@@ -207,7 +207,9 @@ int file_ftruncate(struct file_handler_conf *conf, int fd, off_t offset);
 int file_fgetattr(struct file_handler_conf *conf, int fd, struct stat *stat_buf);
 
 int file_get_block_hash(struct file_handler_conf *conf, int fd, long block, unsigned char *hash) {
-
+    lseek(conf->file_descriptors[fd]->index_fd, FILE_SIZE_BYTES + (block*hash_length[conf->hash_type-1]), SEEK_SET);
+    read(conf->file_descriptors[fd]->index_fd, hash, hash_length[conf->hash_type-1]);
+    return 0;
 }
 
 // TODO check errors
