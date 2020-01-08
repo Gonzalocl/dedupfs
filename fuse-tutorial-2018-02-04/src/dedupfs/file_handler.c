@@ -219,3 +219,34 @@ int file_set_block_hash(struct file_handler_conf *conf, int fd, long block, cons
     return 0;
 }
 
+// TODO check errors
+int file_get_size(struct file_handler_conf *conf, int fd, long *file_size) {
+    int ret_value = 0;
+    lseek(conf->file_descriptors[fd]->index_fd, 0, SEEK_SET);
+    if ((ret_value = read(conf->file_descriptors[fd]->index_fd, file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+        if (ret_value < 0) {
+            ret_value = -errno;
+        }
+        else {
+            // TODO
+            ret_value = -EIO;
+        }
+    }
+    return ret_value;
+}
+
+// TODO check errors
+int file_set_size(struct file_handler_conf *conf, int fd, const long file_size) {
+    int ret_value = 0;
+    lseek(conf->file_descriptors[fd]->index_fd, 0, SEEK_SET);
+    if ((ret_value = write(conf->file_descriptors[fd]->index_fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+        if (ret_value < 0) {
+            ret_value = -errno;
+        }
+        else {
+            // TODO
+            ret_value = -EIO;
+        }
+    }
+    return ret_value;
+}

@@ -46,4 +46,8 @@ int file_fgetattr(struct file_handler_conf *conf, int fd, struct stat *stat_buf)
 int file_get_block_hash(struct file_handler_conf *conf, int fd, long block, unsigned char *hash);
 int file_set_block_hash(struct file_handler_conf *conf, int fd, long block, const unsigned char *hash);
 
+// TODO public?
+int file_get_size(struct file_handler_conf *conf, int fd, long *file_size);
+int file_set_size(struct file_handler_conf *conf, int fd, const long file_size);
+
 #endif //FILE_HANDLER_H
