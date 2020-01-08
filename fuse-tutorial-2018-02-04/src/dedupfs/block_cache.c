@@ -6,7 +6,11 @@ struct block_cache * cache_init(int fd, int size, struct file_handler_conf *file
 }
 
 int cache_write(struct block_cache *cache, const void *buf, size_t size, off_t offset) {
-
+    // read blocks
+    // delete blocks
+    // modify blocks
+    // create new blocks
+    // set new blocks hashes
 }
 
 int cache_read(struct block_cache *cache, void *buf, size_t size, off_t offset) {

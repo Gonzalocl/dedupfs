@@ -34,3 +34,14 @@ check "$test" "$ok"
 test=$(bin/test_file_get_block_hash bin/fs files 1 blocks 5 1 2 /test_file 0123456789abcdef9876543210fedcba 1 ccddccddccddccddccddccddccddccdd) || exit_error
 ok="ccddccddccddccddccddccddccddccdd"
 check "$test" "$ok"
+
+bin/test_file_set_block_hash bin/fs files 1 blocks 5 1 2 /test_file 0123456789abcdef9876543210fedcba 0 01010101010101010101010101010101 || exit_error
+bin/test_file_set_block_hash bin/fs files 1 blocks 5 1 2 /test_file 0123456789abcdef9876543210fedcba 1 95959595959595959595959595959595 || exit_error
+
+test=$(bin/test_file_get_block_hash bin/fs files 1 blocks 5 1 2 /test_file 0123456789abcdef9876543210fedcba 0 01010101010101010101010101010101) || exit_error
+ok="01010101010101010101010101010101"
+check "$test" "$ok"
+
+test=$(bin/test_file_get_block_hash bin/fs files 1 blocks 5 1 2 /test_file 0123456789abcdef9876543210fedcba 1 95959595959595959595959595959595) || exit_error
+ok="95959595959595959595959595959595"
+check "$test" "$ok"

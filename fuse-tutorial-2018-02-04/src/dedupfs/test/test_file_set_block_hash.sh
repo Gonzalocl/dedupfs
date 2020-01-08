@@ -40,3 +40,21 @@ ok=$(echo "0000000 0000 0000 0000 0000 bbaa bbaa bbaa bbaa
 0000028" | tr -d " ")
 check "$test" "$ok"
 
+
+bin/test_file_set_block_hash bin/fs files 1 blocks 5 1 2 /test_file 0123456789abcdef9876543210fedcba 0 01010101010101010101010101010101 || exit_error
+test=$(hexdump bin/fs/files/test_file | tr -d " ")
+ok=$(echo "0000000 0000 0000 0000 0000 0101 0101 0101 0101
+0000010 0101 0101 0101 0101 ddcc ddcc ddcc ddcc
+0000020 ddcc ddcc ddcc ddcc
+0000028" | tr -d " ")
+check "$test" "$ok"
+
+
+bin/test_file_set_block_hash bin/fs files 1 blocks 5 1 2 /test_file 0123456789abcdef9876543210fedcba 1 95959595959595959595959595959595 || exit_error
+test=$(hexdump bin/fs/files/test_file | tr -d " ")
+ok=$(echo "0000000 0000 0000 0000 0000 0101 0101 0101 0101
+0000010 0101 0101 0101 0101 9595 9595 9595 9595
+0000020 9595 9595 9595 9595
+0000028" | tr -d " ")
+check "$test" "$ok"
+

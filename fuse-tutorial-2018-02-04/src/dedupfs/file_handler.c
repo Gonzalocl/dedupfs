@@ -193,7 +193,8 @@ int file_read(struct file_handler_conf *conf, int fd, void *buf, size_t size, of
 }
 
 int file_write(struct file_handler_conf *conf, int fd, const void *buf, size_t size, off_t offset) {
-
+    // check if write is beyond file size
+    // call cache write
 }
 
 int file_release(struct file_handler_conf *conf, int fd) {
@@ -236,6 +237,7 @@ int file_get_size(struct file_handler_conf *conf, int fd, long *file_size) {
 }
 
 // TODO check errors
+// TODO what happens if you set beyond the file size
 int file_set_size(struct file_handler_conf *conf, int fd, const long file_size) {
     int ret_value = 0;
     lseek(conf->file_descriptors[fd]->index_fd, 0, SEEK_SET);
