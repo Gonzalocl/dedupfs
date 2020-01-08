@@ -14,26 +14,30 @@ fi
 
 }
 
+function exit_error {
+    echo -e "${COLOR_ERR}$0 FAILED${COLOR_RESET}" && exit 1
+}
+
 rm -rf bin/fs/*
 make
 
 
-bin/test_file_mknod bin/fs files 1 blocks 5 1 2 /test_file 0123456789abcdef9876543210fedcba || ( echo -e "${COLOR_ERR}$0 FAILED${COLOR_RESET}" && exit 1 )
+bin/test_file_mknod bin/fs files 1 blocks 5 1 2 /test_file 0123456789abcdef9876543210fedcba || exit_error
 
-bin/test_file_set_size bin/fs files 1 blocks 5 1 2 /test_file 789 || ( echo -e "${COLOR_ERR}$0 FAILED${COLOR_RESET}" && exit 1 )
-test=$(bin/test_file_get_size bin/fs files 1 blocks 5 1 2 /test_file) || ( echo -e "${COLOR_ERR}$0 FAILED${COLOR_RESET}" && exit 1 )
+bin/test_file_set_size bin/fs files 1 blocks 5 1 2 /test_file 789 || exit_error
+test=$(bin/test_file_get_size bin/fs files 1 blocks 5 1 2 /test_file) || exit_error
 ok="789"
 check "$test" "$ok"
 
 
-bin/test_file_set_size bin/fs files 1 blocks 5 1 2 /test_file 790 || ( echo -e "${COLOR_ERR}$0 FAILED${COLOR_RESET}" && exit 1 )
-test=$(bin/test_file_get_size bin/fs files 1 blocks 5 1 2 /test_file) || ( echo -e "${COLOR_ERR}$0 FAILED${COLOR_RESET}" && exit 1 )
+bin/test_file_set_size bin/fs files 1 blocks 5 1 2 /test_file 790 || exit_error
+test=$(bin/test_file_get_size bin/fs files 1 blocks 5 1 2 /test_file) || exit_error
 ok="790"
 check "$test" "$ok"
 
 
-bin/test_file_set_size bin/fs files 1 blocks 5 1 2 /test_file 999999 || ( echo -e "${COLOR_ERR}$0 FAILED${COLOR_RESET}" && exit 1 )
-test=$(bin/test_file_get_size bin/fs files 1 blocks 5 1 2 /test_file) || ( echo -e "${COLOR_ERR}$0 FAILED${COLOR_RESET}" && exit 1 )
+bin/test_file_set_size bin/fs files 1 blocks 5 1 2 /test_file 999999 || exit_error
+test=$(bin/test_file_get_size bin/fs files 1 blocks 5 1 2 /test_file) || exit_error
 ok="999999"
 check "$test" "$ok"
 
