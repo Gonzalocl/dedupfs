@@ -21,6 +21,7 @@ struct file_handler_conf {
     struct file_descriptor **file_descriptors;
     int fd_counter;
     unsigned char *zero_block_hash;
+    char *zero_block_data;
 };
 
 

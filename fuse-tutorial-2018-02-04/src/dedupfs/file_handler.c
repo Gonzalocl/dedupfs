@@ -75,12 +75,13 @@ int file_handler_init(struct file_handler_conf *conf) {
 
     // create zero block
     conf->zero_block_hash = malloc(conf->block_handler.hash_length);
-    char zero_block_data[hash_length[conf->block_handler.block_size]];
-    memset(&zero_block_data, 0, conf->block_handler.block_size);
+    conf->zero_block_data = malloc(conf->block_handler.block_size);
+    memset(conf->zero_block_data, 0, conf->block_handler.block_size);
 
-    get_hash(conf->hash_type, conf->block_handler.block_size, zero_block_data, conf->zero_block_hash);
+    get_hash(conf->hash_type, conf->block_handler.block_size, conf->zero_block_data, conf->zero_block_hash);
 
-    block_create(conf->zero_block_hash, zero_block_data);
+    // TODO delete this at end
+    block_create(conf->zero_block_hash, conf->zero_block_data);
 
     return ret_value;
 
@@ -201,7 +202,7 @@ int file_open(struct file_handler_conf *conf, const char *path, int flags) {
 }
 
 int file_read(struct file_handler_conf *conf, int fd, void *buf, size_t size, off_t offset) {
-
+    // check if read is beyond file size
 }
 
 int file_write(struct file_handler_conf *conf, int fd, const void *buf, size_t size, off_t offset) {
@@ -209,11 +210,21 @@ int file_write(struct file_handler_conf *conf, int fd, const void *buf, size_t s
     long file_size;
     file_get_size(conf, fd, &file_size);
     // TODO fine check
-    if ((size+offset) > file_size) {
-        // TODO resize
+    long last_write_byte = size+offset;
+    long file_blocks = (file_size % conf->block_handler.block_size) == 0 ? file_size/conf->block_handler.block_size : file_size/conf->block_handler.block_size + 1;
+    long last_write_block = (last_write_byte % conf->block_handler.block_size) == 0 ? last_write_byte/conf->block_handler.block_size : last_write_byte/conf->block_handler.block_size + 1;
+
+    if (last_write_block > file_blocks) {
+        file_set_size(conf, fd, last_write_byte);
+        for (int i = file_blocks; i < last_write_block; i++) {
+            file_set_block_hash(conf, fd, i, conf->zero_block_hash);
+            block_create(conf->zero_block_hash, conf->zero_block_data);
+        }
     }
     // call cache write
     cache_write(conf->file_descriptors[fd]->cache, buf, size, offset);
+
+    // TODO return bytes writen
 }
 
 int file_release(struct file_handler_conf *conf, int fd) {
