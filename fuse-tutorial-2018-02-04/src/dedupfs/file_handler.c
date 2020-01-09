@@ -206,7 +206,14 @@ int file_read(struct file_handler_conf *conf, int fd, void *buf, size_t size, of
 
 int file_write(struct file_handler_conf *conf, int fd, const void *buf, size_t size, off_t offset) {
     // check if write is beyond file size
+    long file_size;
+    file_get_size(conf, fd, &file_size);
+    // TODO fine check
+    if ((size+offset) > file_size) {
+        // TODO resize
+    }
     // call cache write
+    cache_write(conf->file_descriptors[fd]->cache, buf, size, offset);
 }
 
 int file_release(struct file_handler_conf *conf, int fd) {

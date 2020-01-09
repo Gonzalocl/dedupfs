@@ -27,7 +27,10 @@ int main (int argc, char *argv[]) {
         sscanf(argv[8] + i*2, "%02hhx", &hash[i]);
     }
 
-    strncpy(data, argv[9], conf.block_size);
+//    strncpy(data, argv[9], conf.block_size);
+    for (int i = 0; i < conf.block_size; i++) {
+        sscanf(argv[9] + i*2, "%02hhx", &data[i]);
+    }
 
     int ret;
     ret = block_handler_init("bin/fs", &conf);
