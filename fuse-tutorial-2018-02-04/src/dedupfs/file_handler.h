@@ -20,6 +20,7 @@ struct file_handler_conf {
     int file_open_max;
     struct file_descriptor **file_descriptors;
     int fd_counter;
+    unsigned char *zero_block_hash;
 };
 
 

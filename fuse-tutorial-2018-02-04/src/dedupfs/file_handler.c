@@ -8,6 +8,7 @@
 
 #include "file_handler.h"
 #include "block_cache.h"
+#include "get_hash.h"
 
 #define TRUE (0==0)
 #define FALSE (!TRUE)
@@ -70,7 +71,18 @@ int file_handler_init(struct file_handler_conf *conf) {
         return -errno;
     }
     memset(conf->file_descriptors, 0, conf->file_open_max * sizeof(struct block_cache *));
-    return block_handler_init(conf->fs_path, &conf->block_handler);
+    int ret_value = block_handler_init(conf->fs_path, &conf->block_handler);
+
+    // create zero block
+    conf->zero_block_hash = malloc(conf->block_handler.hash_length);
+    char zero_block_data[hash_length[conf->block_handler.block_size]];
+    memset(&zero_block_data, 0, conf->block_handler.block_size);
+
+    get_hash(conf->hash_type, conf->block_handler.block_size, zero_block_data, conf->zero_block_hash);
+
+    block_create(conf->zero_block_hash, zero_block_data);
+
+    return ret_value;
 
 //    char path[PATH_MAX];
 //    int ret_value = 0;
