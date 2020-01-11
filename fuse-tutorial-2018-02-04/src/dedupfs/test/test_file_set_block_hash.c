@@ -9,7 +9,7 @@
 int main (int argc, char *argv[]) {
 
     if (argc != 12) {
-        printf("ERROR:%s:%d param\n", __FILE__, __LINE__);
+        fprintf(stderr, "ERROR:%s:%d param\n", __FILE__, __LINE__);
         return EXIT_FAILURE;
     }
 
@@ -32,7 +32,7 @@ int main (int argc, char *argv[]) {
 
     int ret;
     if ((ret = file_handler_init(&conf)) < 0) {
-        printf("ERROR:%s:%d file_handler_init: %d\n", __FILE__, __LINE__, ret);
+        fprintf(stderr, "ERROR:%s:%d file_handler_init: %d\n", __FILE__, __LINE__, ret);
         return EXIT_FAILURE;
     }
 
@@ -43,12 +43,12 @@ int main (int argc, char *argv[]) {
 
     int fd;
     if ((fd = file_open(&conf, path, 0)) < 0) {
-        printf("ERROR:%s:%d file_open: %d\n", __FILE__, __LINE__, fd);
+        fprintf(stderr, "ERROR:%s:%d file_open: %d\n", __FILE__, __LINE__, fd);
         return EXIT_FAILURE;
     }
 
     if ((ret = file_set_block_hash(&conf, fd, block, hash)) < 0) {
-        printf("ERROR:%s:%d file_set_block_hash: %d\n", __FILE__, __LINE__, ret);
+        fprintf(stderr, "ERROR:%s:%d file_set_block_hash: %d\n", __FILE__, __LINE__, ret);
         return EXIT_FAILURE;
     }
 

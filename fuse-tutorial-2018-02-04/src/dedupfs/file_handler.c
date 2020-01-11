@@ -268,6 +268,7 @@ int file_get_size(struct file_handler_conf *conf, int fd, long *file_size) {
 
 // TODO check errors
 // TODO what happens if you set beyond the file size
+// TODO what happens if you reduce the file size
 int file_set_size(struct file_handler_conf *conf, int fd, const long file_size) {
     int ret_value = 0;
     lseek(conf->file_descriptors[fd]->index_fd, 0, SEEK_SET);
