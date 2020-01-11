@@ -32,8 +32,9 @@ int cache_write(struct block_cache *cache, const void *buf, size_t size, off_t o
     char *data = malloc(cache->block_size);
     long bytes_write = 0;
 
+    block = offset/cache->block_size;
+
     if ((offset % cache->block_size) != 0) {
-        block = offset/cache->block_size;
         long block_offset = offset % cache->block_size;
 
         // read blocks
@@ -53,11 +54,12 @@ int cache_write(struct block_cache *cache, const void *buf, size_t size, off_t o
 
         // delete blocks
         block_delete(hash_read);
+
+        block++;
     }
 
 
     while ((size - bytes_write) >= cache->block_size) {
-        block++;
 
         // create new blocks
         get_hash(cache->hash_type, cache->block_size, buf+bytes_write, hash_write);
@@ -72,11 +74,12 @@ int cache_write(struct block_cache *cache, const void *buf, size_t size, off_t o
 
         // delete blocks
         block_delete(hash_read);
+
+        block++;
     }
 
     long remaining_bytes = size - bytes_write;
     if ((remaining_bytes) > 0) {
-        block++;
 
         // read blocks
         file_get_block_hash(cache->file_handler, cache->fd, block, hash_read);

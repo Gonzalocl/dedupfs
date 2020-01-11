@@ -7,15 +7,15 @@ COLOR_RESET="\e[0m"
 function check {
 
 if [[ "$1" = "$2" ]]; then
-    echo -e "${COLOR_LOG}$0 OK${COLOR_RESET}"
+    echo -e "${COLOR_LOG}$0:${BASH_LINENO} OK${COLOR_RESET}"
 else
-    echo -e "${COLOR_ERR}$0 FAILED${COLOR_RESET}" && exit 1
+    echo -e "${COLOR_ERR}$0:${BASH_LINENO} FAILED${COLOR_RESET}" && exit 1
 fi
 
 }
 
 function exit_error {
-    echo -e "${COLOR_ERR}$0 FAILED${COLOR_RESET}" && exit 1
+    echo -e "${COLOR_ERR}$0:${BASH_LINENO} FAILED${COLOR_RESET}" && exit 1
 }
 
 function get_path {
