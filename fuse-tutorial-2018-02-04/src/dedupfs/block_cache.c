@@ -45,7 +45,7 @@ int cache_write(struct block_cache *cache, const void *buf, size_t size, off_t o
         memcpy(data+block_offset, buf, bytes_write);
 
         // create new blocks
-        get_hash(cache->hash_type, cache->hash_length, data, hash_write);
+        get_hash(cache->hash_type, cache->block_size, data, hash_write);
         block_create(hash_write, data);
 
         // set new blocks hashes

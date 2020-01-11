@@ -2,7 +2,7 @@
 #include <openssl/evp.h>
 
 // TODO optimize
-int get_hash(int hash_type, int data_size, const char* data, unsigned char *hash) {
+int get_hash(int hash_type, int data_size, const char *data, unsigned char *hash) {
     EVP_MD_CTX *ctx;
     const EVP_MD *md;
     int hash_len;
