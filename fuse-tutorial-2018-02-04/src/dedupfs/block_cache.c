@@ -27,7 +27,8 @@ struct block_cache * cache_init(int fd, int size, struct file_handler_conf *file
 int cache_write(struct block_cache *cache, const void *buf, size_t size, off_t offset) {
 
     long block;
-    unsigned char *hash = malloc(cache->hash_length);
+    unsigned char *hash_read = malloc(cache->hash_length);
+    unsigned char *hash_write = malloc(cache->hash_length);
     char *data = malloc(cache->block_size);
     long bytes_write = 0;
 
@@ -36,22 +37,22 @@ int cache_write(struct block_cache *cache, const void *buf, size_t size, off_t o
         long block_offset = offset % cache->block_size;
 
         // read blocks
-        file_get_block_hash(cache->file_handler, cache->fd, block, hash);
-        block_read(hash, data);
+        file_get_block_hash(cache->file_handler, cache->fd, block, hash_read);
+        block_read(hash_read, data);
 
         // modify blocks
         bytes_write = size < (cache->block_size-block_offset) ? size : (cache->block_size-block_offset);
         memcpy(data+block_offset, buf, bytes_write);
 
         // create new blocks
-        get_hash(cache->hash_type, cache->hash_length, data, hash);
-        block_create(hash, data);
+        get_hash(cache->hash_type, cache->hash_length, data, hash_write);
+        block_create(hash_write, data);
 
         // set new blocks hashes
-        file_set_block_hash(cache->file_handler, cache->fd, block, hash);
+        file_set_block_hash(cache->file_handler, cache->fd, block, hash_write);
 
         // delete blocks
-        block_delete(hash);
+        block_delete(hash_read);
     }
 
 //    for (int i = 0; i < ; i++) {
@@ -64,7 +65,8 @@ int cache_write(struct block_cache *cache, const void *buf, size_t size, off_t o
 //    }
 
 
-    free(hash);
+    free(hash_read);
+    free(hash_write);
     free(data);
 }
 
