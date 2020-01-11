@@ -18,29 +18,39 @@ function exit_error {
     echo -e "${COLOR_ERR}$0 FAILED${COLOR_RESET}" && exit 1
 }
 
-rm -rf bin/fs/*
+fs_path="bin/fs"
+
+rm -rf $fs_path/*
 make
 
 
-bin/test_file_mknod bin/fs files 1 blocks 5 1 2 /test_file 0123456789abcdef9876543210fedcba || exit_error
+files_path="files"
+hash_type=1
+blocks_path="blocks"
+block_size=5
+hash_split=1
+hash_split_size=2
+path="/test_file"
 
-bin/test_file_set_size bin/fs files 1 blocks 5 1 2 /test_file 789 || exit_error
-test=$(bin/test_file_get_size bin/fs files 1 blocks 5 1 2 /test_file) || exit_error
-ok="789"
+
+bin/test_file_mknod $fs_path $files_path $hash_type $blocks_path $block_size $hash_split $hash_split_size $path null || exit_error
+
+file_size=789
+bin/test_file_set_size $fs_path $files_path $hash_type $blocks_path $block_size $hash_split $hash_split_size $path $file_size || exit_error
+test=$(bin/test_file_get_size $fs_path $files_path $hash_type $blocks_path $block_size $hash_split $hash_split_size $path) || exit_error
+ok="$file_size"
 check "$test" "$ok"
 
-
-bin/test_file_set_size bin/fs files 1 blocks 5 1 2 /test_file 790 || exit_error
-test=$(bin/test_file_get_size bin/fs files 1 blocks 5 1 2 /test_file) || exit_error
-ok="790"
+file_size=790
+bin/test_file_set_size $fs_path $files_path $hash_type $blocks_path $block_size $hash_split $hash_split_size $path $file_size || exit_error
+test=$(bin/test_file_get_size $fs_path $files_path $hash_type $blocks_path $block_size $hash_split $hash_split_size $path) || exit_error
+ok="$file_size"
 check "$test" "$ok"
 
-
-bin/test_file_set_size bin/fs files 1 blocks 5 1 2 /test_file 999999 || exit_error
-test=$(bin/test_file_get_size bin/fs files 1 blocks 5 1 2 /test_file) || exit_error
-ok="999999"
+file_size=999999
+bin/test_file_set_size $fs_path $files_path $hash_type $blocks_path $block_size $hash_split $hash_split_size $path $file_size || exit_error
+test=$(bin/test_file_get_size $fs_path $files_path $hash_type $blocks_path $block_size $hash_split $hash_split_size $path) || exit_error
+ok="$file_size"
 check "$test" "$ok"
-
-
 
 
