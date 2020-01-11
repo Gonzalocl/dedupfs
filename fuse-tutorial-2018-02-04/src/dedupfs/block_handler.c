@@ -405,7 +405,7 @@ static int delete_block_path(char *block_path) {
     return 0;
 }
 
-int block_create(unsigned char *hash, char *data) {
+int block_create(unsigned char *hash, const char *data) {
 //    if (handler_conf == NULL) {
 //        // TODO
 //        // TODO call init?

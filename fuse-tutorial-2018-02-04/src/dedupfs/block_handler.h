@@ -30,7 +30,7 @@ int block_handler_get_conf(struct block_handler_conf *conf);
 int block_handler_end();
 
 
-int block_create(unsigned char *hash, char *data);
+int block_create(unsigned char *hash, const char *data);
 int block_delete(unsigned char *hash);
 
 

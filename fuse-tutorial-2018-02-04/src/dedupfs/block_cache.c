@@ -55,14 +55,46 @@ int cache_write(struct block_cache *cache, const void *buf, size_t size, off_t o
         block_delete(hash_read);
     }
 
-//    for (int i = 0; i < ; i++) {
-//
-//    }
-//
-//    long last_write_byte = size+offset;
-//    if ((last_write_byte % cache->block_size) != 0) {
-//
-//    }
+
+    while ((size - bytes_write) >= cache->block_size) {
+        block++;
+
+        // create new blocks
+        get_hash(cache->hash_type, cache->block_size, buf+bytes_write, hash_write);
+        block_create(hash_write, buf+bytes_write);
+        bytes_write+=cache->block_size;
+
+        // read blocks
+        file_get_block_hash(cache->file_handler, cache->fd, block, hash_read);
+
+        // set new blocks hashes
+        file_set_block_hash(cache->file_handler, cache->fd, block, hash_write);
+
+        // delete blocks
+        block_delete(hash_read);
+    }
+
+    long remaining_bytes = size - bytes_write;
+    if ((remaining_bytes) > 0) {
+        block++;
+
+        // read blocks
+        file_get_block_hash(cache->file_handler, cache->fd, block, hash_read);
+        block_read(hash_read, data);
+
+        // modify blocks
+        memcpy(data, buf+bytes_write, remaining_bytes);
+
+        // create new blocks
+        get_hash(cache->hash_type, cache->block_size, data, hash_write);
+        block_create(hash_write, data);
+
+        // set new blocks hashes
+        file_set_block_hash(cache->file_handler, cache->fd, block, hash_write);
+
+        // delete blocks
+        block_delete(hash_read);
+    }
 
 
     free(hash_read);
