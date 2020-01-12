@@ -341,7 +341,9 @@ rm -rf $fs_path/*
 
 
 block_data=$(mktemp)
+block_data_original=$(mktemp)
 dd if=/dev/urandom of=$block_data bs=1 count=$block_size 2> /dev/null
+cp $block_data $block_data_original
 block_hash=$($hash_command $block_data | cut -d ' ' -f 1)
 file_size=$(($block_size*3))
 write_data_size=$(($block_size*3 - 2))
@@ -367,30 +369,36 @@ bin/test_cache_write $fs_path $files_path $hash_type $blocks_path $block_size $h
 
 
 test=$(bin/test_file_get_block_hash $fs_path $files_path $hash_type $blocks_path $block_size $hash_split $hash_split_size $path null $(($block+0)) null) || exit_error
-ok=$(dd if=$write_data bs=1 count=$(($block_size-$write_data_offset)) conv=notrunc seek=$write_data_offset 2> /dev/null | $hash_command | cut -d ' ' -f 1)
+cp $block_data_original $block_data
+dd if=$write_data of=$block_data bs=1 count=$(($block_size-$write_data_offset)) conv=notrunc seek=$write_data_offset 2> /dev/null
+ok=$($hash_command $block_data | cut -d ' ' -f 1)
 check "$test" "$ok"
 
 test=$(hexdump -v -e '/1 "%02x"' $fs_path/$blocks_path/$(get_path $hash_split $hash_split_size $test))
-ok=$(dd if=$write_data bs=1 count=$(($block_size-$write_data_offset)) conv=notrunc seek=$write_data_offset 2> /dev/null | hexdump -v -e '/1 "%02x"')01000000
+ok=$(hexdump -v -e '/1 "%02x"' $block_data)01000000
 check "$test" "$ok"
 
 
 test=$(bin/test_file_get_block_hash $fs_path $files_path $hash_type $blocks_path $block_size $hash_split $hash_split_size $path null $(($block+1)) null) || exit_error
-ok=$(dd if=$write_data bs=1 count=$block_size conv=notrunc skip=$(($block_size-$write_data_offset)) 2> /dev/null | $hash_command | cut -d ' ' -f 1)
+cp $block_data_original $block_data
+dd if=$write_data of=$block_data bs=1 count=$block_size conv=notrunc skip=$(($block_size-$write_data_offset)) 2> /dev/null
+ok=$($hash_command $block_data | cut -d ' ' -f 1)
 check "$test" "$ok"
 
 test=$(hexdump -v -e '/1 "%02x"' $fs_path/$blocks_path/$(get_path $hash_split $hash_split_size $test))
-ok=$(dd if=$write_data bs=1 count=$block_size conv=notrunc skip=$(($block_size-$write_data_offset)) 2> /dev/null | hexdump -v -e '/1 "%02x"')01000000
+ok=$(hexdump -v -e '/1 "%02x"' $block_data)01000000
 check "$test" "$ok"
 
 
 test=$(bin/test_file_get_block_hash $fs_path $files_path $hash_type $blocks_path $block_size $hash_split $hash_split_size $path null $(($block+2)) null) || exit_error
-ok=$(dd if=$write_data bs=1 count=$(($write_data_size-2*$block_size+$write_data_offset)) conv=notrunc skip=$((2*$block_size-$write_data_offset)) 2> /dev/null | $hash_command | cut -d ' ' -f 1)
+cp $block_data_original $block_data
+dd if=$write_data of=$block_data bs=1 count=$(($write_data_size-2*$block_size+$write_data_offset)) conv=notrunc skip=$((2*$block_size-$write_data_offset)) 2> /dev/null
+ok=$($hash_command $block_data | cut -d ' ' -f 1)
 check "$test" "$ok"
 
 test=$(hexdump -v -e '/1 "%02x"' $fs_path/$blocks_path/$(get_path $hash_split $hash_split_size $test))
-ok=$(dd if=$write_data bs=1 count=$(($write_data_size-2*$block_size+$write_data_offset)) conv=notrunc skip=$((2*$block_size-$write_data_offset)) 2> /dev/null | hexdump -v -e '/1 "%02x"')01000000
+ok=$(hexdump -v -e '/1 "%02x"' $block_data)01000000
 check "$test" "$ok"
 
 
-rm -f $block_data $write_data
+rm -f $block_data $write_data $block_data_original
