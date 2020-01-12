@@ -107,6 +107,50 @@ int cache_write(struct block_cache *cache, const void *buf, size_t size, off_t o
 
 int cache_read(struct block_cache *cache, void *buf, size_t size, off_t offset) {
 
+    long block;
+    unsigned char *hash_read = malloc(cache->hash_length);
+    char *data = malloc(cache->block_size);
+    long bytes_read = 0;
+
+    block = offset/cache->block_size;
+
+    if ((offset % cache->block_size) != 0) {
+        long block_offset = offset % cache->block_size;
+
+        // read blocks
+        bytes_read = size < (cache->block_size-block_offset) ? size : (cache->block_size-block_offset);
+        file_get_block_hash(cache->file_handler, cache->fd, block, hash_read);
+        block_read(hash_read, data);
+
+        // copy data
+        memcpy(buf, data+block_offset, bytes_read);
+
+        block++;
+    }
+
+    while ((size - bytes_read) >= cache->block_size) {
+
+        // read blocks
+        file_get_block_hash(cache->file_handler, cache->fd, block, hash_read);
+        block_read(hash_read, buf+bytes_read);
+
+        bytes_read+=cache->block_size;
+        block++;
+    }
+
+    long remaining_bytes = size - bytes_read;
+    if ((remaining_bytes) > 0) {
+
+        // read blocks
+        file_get_block_hash(cache->file_handler, cache->fd, block, hash_read);
+        block_read(hash_read, data);
+
+        // copy data
+        memcpy(buf+bytes_read, data, remaining_bytes);
+    }
+
+    free(hash_read);
+    free(data);
 }
 
 int cache_end(struct block_cache *cache) {
