@@ -177,8 +177,14 @@ int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
     return ret_value;
 }
 
-int file_unlink(struct file_handler_conf *conf, const char *path);
-int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_size);
+int file_unlink(struct file_handler_conf *conf, const char *path) {
+    // TODO
+}
+
+int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_size) {
+    // TODO
+}
+
 int file_open(struct file_handler_conf *conf, const char *path, int flags) {
     char full_path[PATH_MAX];
     int fd;
@@ -233,9 +239,17 @@ int file_release(struct file_handler_conf *conf, int fd) {
     free(conf->file_descriptors[fd]);
 }
 
-int file_fsync(struct file_handler_conf *conf, int fd);
-int file_ftruncate(struct file_handler_conf *conf, int fd, off_t offset);
-int file_fgetattr(struct file_handler_conf *conf, int fd, struct stat *stat_buf);
+int file_fsync(struct file_handler_conf *conf, int fd) {
+    // TODO
+}
+
+int file_ftruncate(struct file_handler_conf *conf, int fd, off_t offset) {
+    // TODO
+}
+
+int file_fgetattr(struct file_handler_conf *conf, int fd, struct stat *stat_buf) {
+    // TODO
+}
 
 int file_get_block_hash(struct file_handler_conf *conf, int fd, long block, unsigned char *hash) {
     lseek(conf->file_descriptors[fd]->index_fd, FILE_SIZE_BYTES + (block*hash_length[conf->hash_type-1]), SEEK_SET);
