@@ -99,7 +99,9 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_bbfs_OBJECTS = bbfs.$(OBJEXT) log.$(OBJEXT)
+am_bbfs_OBJECTS = bbfs.$(OBJEXT) log.$(OBJEXT) file_handler.$(OBJEXT) \
+	block_handler.$(OBJEXT) get_hash.$(OBJEXT) \
+	block_cache.$(OBJEXT)
 bbfs_OBJECTS = $(am_bbfs_OBJECTS)
 bbfs_LDADD = $(LDADD)
 bbfs_DEPENDENCIES =
@@ -119,6 +121,10 @@ DEFAULT_INCLUDES = -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
+AM_V_lt = $(am__v_lt_$(V))
+am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
+am__v_lt_0 = --silent
+am__v_lt_1 = 
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 AM_V_CC = $(am__v_CC_$(V))
@@ -254,9 +260,9 @@ target_alias =
 top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
-bbfs_SOURCES = bbfs.c log.c log.h  params.h
+bbfs_SOURCES = bbfs.c log.c log.h  params.h dedupfs/file_handler.c dedupfs/file_handler.h dedupfs/block_handler.c dedupfs/block_handler.h dedupfs/get_hash.c dedupfs/get_hash.h dedupfs/block_cache.c dedupfs/block_cache.h
 AM_CFLAGS = -D_FILE_OFFSET_BITS=64 -I/usr/include/fuse
-LDADD = -lfuse -pthread
+LDADD = -lfuse -pthread -lcrypto
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -360,6 +366,10 @@ distclean-compile:
 	-rm -f *.tab.c
 
 include ./$(DEPDIR)/bbfs.Po
+include ./$(DEPDIR)/block_cache.Po
+include ./$(DEPDIR)/block_handler.Po
+include ./$(DEPDIR)/file_handler.Po
+include ./$(DEPDIR)/get_hash.Po
 include ./$(DEPDIR)/log.Po
 
 .c.o:
@@ -375,6 +385,62 @@ include ./$(DEPDIR)/log.Po
 #	$(AM_V_CC)source='$<' object='$@' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+file_handler.o: dedupfs/file_handler.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT file_handler.o -MD -MP -MF $(DEPDIR)/file_handler.Tpo -c -o file_handler.o `test -f 'dedupfs/file_handler.c' || echo '$(srcdir)/'`dedupfs/file_handler.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/file_handler.Tpo $(DEPDIR)/file_handler.Po
+#	$(AM_V_CC)source='dedupfs/file_handler.c' object='file_handler.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o file_handler.o `test -f 'dedupfs/file_handler.c' || echo '$(srcdir)/'`dedupfs/file_handler.c
+
+file_handler.obj: dedupfs/file_handler.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT file_handler.obj -MD -MP -MF $(DEPDIR)/file_handler.Tpo -c -o file_handler.obj `if test -f 'dedupfs/file_handler.c'; then $(CYGPATH_W) 'dedupfs/file_handler.c'; else $(CYGPATH_W) '$(srcdir)/dedupfs/file_handler.c'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/file_handler.Tpo $(DEPDIR)/file_handler.Po
+#	$(AM_V_CC)source='dedupfs/file_handler.c' object='file_handler.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o file_handler.obj `if test -f 'dedupfs/file_handler.c'; then $(CYGPATH_W) 'dedupfs/file_handler.c'; else $(CYGPATH_W) '$(srcdir)/dedupfs/file_handler.c'; fi`
+
+block_handler.o: dedupfs/block_handler.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT block_handler.o -MD -MP -MF $(DEPDIR)/block_handler.Tpo -c -o block_handler.o `test -f 'dedupfs/block_handler.c' || echo '$(srcdir)/'`dedupfs/block_handler.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/block_handler.Tpo $(DEPDIR)/block_handler.Po
+#	$(AM_V_CC)source='dedupfs/block_handler.c' object='block_handler.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o block_handler.o `test -f 'dedupfs/block_handler.c' || echo '$(srcdir)/'`dedupfs/block_handler.c
+
+block_handler.obj: dedupfs/block_handler.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT block_handler.obj -MD -MP -MF $(DEPDIR)/block_handler.Tpo -c -o block_handler.obj `if test -f 'dedupfs/block_handler.c'; then $(CYGPATH_W) 'dedupfs/block_handler.c'; else $(CYGPATH_W) '$(srcdir)/dedupfs/block_handler.c'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/block_handler.Tpo $(DEPDIR)/block_handler.Po
+#	$(AM_V_CC)source='dedupfs/block_handler.c' object='block_handler.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o block_handler.obj `if test -f 'dedupfs/block_handler.c'; then $(CYGPATH_W) 'dedupfs/block_handler.c'; else $(CYGPATH_W) '$(srcdir)/dedupfs/block_handler.c'; fi`
+
+get_hash.o: dedupfs/get_hash.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT get_hash.o -MD -MP -MF $(DEPDIR)/get_hash.Tpo -c -o get_hash.o `test -f 'dedupfs/get_hash.c' || echo '$(srcdir)/'`dedupfs/get_hash.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/get_hash.Tpo $(DEPDIR)/get_hash.Po
+#	$(AM_V_CC)source='dedupfs/get_hash.c' object='get_hash.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o get_hash.o `test -f 'dedupfs/get_hash.c' || echo '$(srcdir)/'`dedupfs/get_hash.c
+
+get_hash.obj: dedupfs/get_hash.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT get_hash.obj -MD -MP -MF $(DEPDIR)/get_hash.Tpo -c -o get_hash.obj `if test -f 'dedupfs/get_hash.c'; then $(CYGPATH_W) 'dedupfs/get_hash.c'; else $(CYGPATH_W) '$(srcdir)/dedupfs/get_hash.c'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/get_hash.Tpo $(DEPDIR)/get_hash.Po
+#	$(AM_V_CC)source='dedupfs/get_hash.c' object='get_hash.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o get_hash.obj `if test -f 'dedupfs/get_hash.c'; then $(CYGPATH_W) 'dedupfs/get_hash.c'; else $(CYGPATH_W) '$(srcdir)/dedupfs/get_hash.c'; fi`
+
+block_cache.o: dedupfs/block_cache.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT block_cache.o -MD -MP -MF $(DEPDIR)/block_cache.Tpo -c -o block_cache.o `test -f 'dedupfs/block_cache.c' || echo '$(srcdir)/'`dedupfs/block_cache.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/block_cache.Tpo $(DEPDIR)/block_cache.Po
+#	$(AM_V_CC)source='dedupfs/block_cache.c' object='block_cache.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o block_cache.o `test -f 'dedupfs/block_cache.c' || echo '$(srcdir)/'`dedupfs/block_cache.c
+
+block_cache.obj: dedupfs/block_cache.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT block_cache.obj -MD -MP -MF $(DEPDIR)/block_cache.Tpo -c -o block_cache.obj `if test -f 'dedupfs/block_cache.c'; then $(CYGPATH_W) 'dedupfs/block_cache.c'; else $(CYGPATH_W) '$(srcdir)/dedupfs/block_cache.c'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/block_cache.Tpo $(DEPDIR)/block_cache.Po
+#	$(AM_V_CC)source='dedupfs/block_cache.c' object='block_cache.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o block_cache.obj `if test -f 'dedupfs/block_cache.c'; then $(CYGPATH_W) 'dedupfs/block_cache.c'; else $(CYGPATH_W) '$(srcdir)/dedupfs/block_cache.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
