@@ -304,12 +304,18 @@ int file_open(struct file_handler_conf *conf, const char *path, int flags) {
 
     get_full_path(conf, full_path, path);
 
-    fd = next_fd(conf);
+    if ((fd = next_fd(conf)) < 0) {
+        // TODO return what
+        return -EIO;
+    }
 
     conf->file_descriptors[fd] = malloc(sizeof(struct file_descriptor));
 
     // TODO flags?
     if ((conf->file_descriptors[fd]->index_fd = open(full_path, O_RDWR)) == -1) {
+        free(conf->file_descriptors[fd]);
+        // TODO necessary?
+        conf->file_descriptors[fd] = NULL;
         return -errno;
     }
 
@@ -321,6 +327,19 @@ int file_open(struct file_handler_conf *conf, const char *path, int flags) {
 
 int file_read(struct file_handler_conf *conf, int fd, void *buf, size_t size, off_t offset) {
     // check if read is beyond file size
+    long file_size, read_size;
+    file_get_size(conf, fd, &file_size);
+
+    if (file_size <= offset) {
+        return 0;
+    }
+
+    read_size = file_size < (offset + size) ? (file_size - offset - 1) : size;
+
+    // call cache read
+    cache_read(conf->file_descriptors[fd]->cache, buf, read_size, offset);
+
+    // TODO return bytes read
 }
 
 int file_write(struct file_handler_conf *conf, int fd, const void *buf, size_t size, off_t offset) {
