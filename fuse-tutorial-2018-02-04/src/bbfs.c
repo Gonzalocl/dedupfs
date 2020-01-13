@@ -23,6 +23,7 @@
 */
 #include "config.h"
 #include "params.h"
+#include "dedupfs/file_handler.h"
 
 #include <ctype.h>
 #include <dirent.h>
@@ -51,6 +52,8 @@
 static void bb_fullpath(char fpath[PATH_MAX], const char *path)
 {
     strcpy(fpath, BB_DATA->rootdir);
+    strncat(fpath, "/", PATH_MAX);
+    strncat(fpath, BB_DATA->file_handler->files_path, PATH_MAX);
     strncat(fpath, path, PATH_MAX); // ridiculously long paths will
     // break here
 
@@ -912,6 +915,21 @@ int main(int argc, char *argv[])
     argc--;
 
     bb_data->logfile = log_open();
+
+    bb_data->file_handler = malloc(sizeof(struct file_handler_conf));
+    strcpy(bb_data->file_handler->fs_path, bb_data->rootdir);
+    strcpy(bb_data->file_handler->files_path, "files");
+    bb_data->file_handler->hash_type = 1;
+    strcpy(bb_data->file_handler->block_handler.blocks_path, "blocks");
+    bb_data->file_handler->block_handler.block_size = 1000;
+    bb_data->file_handler->block_handler.hash_split = 1;
+    bb_data->file_handler->block_handler.hash_split_size = 2;
+
+    int ret;
+    if ((ret = file_handler_init(bb_data->file_handler)) < 0) {
+        fprintf(stderr, "ERROR:%s:%d file_handler_init: %d\n", __FILE__, __LINE__, ret);
+        return EXIT_FAILURE;
+    }
 
     // turn over control to fuse
     fprintf(stderr, "about to call fuse_main\n");
