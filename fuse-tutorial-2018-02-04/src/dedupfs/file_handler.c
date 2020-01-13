@@ -327,18 +327,10 @@ int file_write(struct file_handler_conf *conf, int fd, const void *buf, size_t s
     // check if write is beyond file size
     long file_size;
     file_get_size(conf, fd, &file_size);
-    // TODO fine check
-    long last_write_byte = size+offset;
-    long file_blocks = (file_size % conf->block_handler.block_size) == 0 ? file_size/conf->block_handler.block_size : file_size/conf->block_handler.block_size + 1;
-    long last_write_block = (last_write_byte % conf->block_handler.block_size) == 0 ? last_write_byte/conf->block_handler.block_size : last_write_byte/conf->block_handler.block_size + 1;
-
-    if (last_write_block > file_blocks) {
-        file_set_size(conf, fd, last_write_byte);
-        for (int i = file_blocks; i < last_write_block; i++) {
-            file_set_block_hash(conf, fd, i, conf->zero_block_hash);
-            block_create(conf->zero_block_hash, conf->zero_block_data);
-        }
+    if (file_size < (offset + size)) {
+        file_ftruncate(conf, fd, offset + size);
     }
+
     // call cache write
     cache_write(conf->file_descriptors[fd]->cache, buf, size, offset);
 
@@ -355,9 +347,74 @@ int file_fsync(struct file_handler_conf *conf, int fd) {
     // TODO
 }
 
-int file_ftruncate(struct file_handler_conf *conf, int fd, off_t offset) {
-    // TODO eing?
-    return file_set_size(conf, fd, offset);
+int file_ftruncate(struct file_handler_conf *conf, int fd, off_t new_size) {
+    // TODO check errors
+    int ret_value = 0;
+    long file_size, file_blocks, file_new_blocks;
+    unsigned char hash[conf->block_handler.block_size];
+    int index_fd = conf->file_descriptors[fd]->index_fd;
+
+    if ((ret_value = read(index_fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+        if (ret_value < 0) {
+            ret_value = -errno;
+        }
+        else {
+            // TODO
+            ret_value = -EIO;
+        }
+    }
+
+    file_blocks = (file_size % conf->block_handler.block_size) == 0 ? file_size/conf->block_handler.block_size : file_size/conf->block_handler.block_size + 1;
+    file_new_blocks = (new_size % conf->block_handler.block_size) == 0 ? new_size/conf->block_handler.block_size : new_size/conf->block_handler.block_size + 1;
+
+
+    if (file_new_blocks < file_blocks) {
+        // set new size
+        lseek(index_fd, 0, SEEK_SET);
+        if ((ret_value = write(index_fd, &new_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+            if (ret_value < 0) {
+                ret_value = -errno;
+            }
+            else {
+                // TODO
+                ret_value = -EIO;
+            }
+        }
+
+        lseek(index_fd, FILE_SIZE_BYTES + (file_new_blocks*hash_length[conf->hash_type-1]), SEEK_SET);
+        for (int i = file_new_blocks; i < file_blocks; i++) {
+            // delete blocks
+            read(index_fd, hash, hash_length[conf->hash_type-1]);
+            block_delete(hash);
+        }
+
+        // truncate index file
+        ftruncate(index_fd, new_size);
+    }
+    else {
+        lseek(index_fd, FILE_SIZE_BYTES + (file_blocks*hash_length[conf->hash_type-1]), SEEK_SET);
+        for (int i = file_blocks; i < file_new_blocks; i++) {
+            // create blocks
+            block_create(conf->zero_block_data, conf->zero_block_hash);
+
+            // add hashes to index file
+            write(index_fd, conf->zero_block_hash, hash_length[conf->hash_type-1]);
+        }
+
+        // set new size
+        lseek(index_fd, 0, SEEK_SET);
+        if ((ret_value = write(index_fd, &new_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+            if (ret_value < 0) {
+                ret_value = -errno;
+            }
+            else {
+                // TODO
+                ret_value = -EIO;
+            }
+        }
+    }
+
+    return ret_value;
 }
 
 int file_fgetattr(struct file_handler_conf *conf, int fd, struct stat *stat_buf) {
