@@ -9,7 +9,7 @@
 #include "file_handler.h"
 #include "block_cache.h"
 #include "get_hash.h"
-
+//#include "../log.h"
 #define TRUE (0==0)
 #define FALSE (!TRUE)
 
@@ -66,7 +66,7 @@ int file_handler_init(struct file_handler_conf *conf) {
     conf->block_handler.hash_length = hash_length[conf->hash_type-1];
     conf->block_handler.bytes_link_counter = DEFAULT_BYTES_LINK_COUNTER;
     conf->file_open_max = DEFAULT_FILE_OPEN_MAX;
-    conf->fd_counter = 0;
+    conf->fd_counter = 10;
     if ((conf->file_descriptors = malloc(conf->file_open_max * sizeof(struct file_descriptor *))) == NULL) {
         return -errno;
     }
@@ -113,6 +113,14 @@ int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *
 
     get_full_path(conf, full_path, path);
 
+    if (lstat(full_path, stat_buf) == -1) {
+        return -errno;
+    }
+
+    if (!S_ISREG(stat_buf->st_mode)) {
+        return ret_value;
+    }
+
     if ((fd = open(full_path, O_RDONLY)) == -1) {
         return -errno;
     }
@@ -129,10 +137,6 @@ int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *
     }
 
     if (close(fd) == -1) {
-        return -errno;
-    }
-
-    if (lstat(full_path, stat_buf) == -1) {
         return -errno;
     }
 
@@ -174,7 +178,7 @@ int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
         return -errno;
     }
 
-    return ret_value;
+    return 0;
 }
 
 int file_unlink(struct file_handler_conf *conf, const char *path) {
@@ -340,6 +344,7 @@ int file_read(struct file_handler_conf *conf, int fd, void *buf, size_t size, of
     cache_read(conf->file_descriptors[fd]->cache, buf, read_size, offset);
 
     // TODO return bytes read
+    return read_size;
 }
 
 int file_write(struct file_handler_conf *conf, int fd, const void *buf, size_t size, off_t offset) {
@@ -354,6 +359,7 @@ int file_write(struct file_handler_conf *conf, int fd, const void *buf, size_t s
     cache_write(conf->file_descriptors[fd]->cache, buf, size, offset);
 
     // TODO return bytes writen
+    return size;
 }
 
 int file_release(struct file_handler_conf *conf, int fd) {

@@ -81,6 +81,7 @@ int bb_getattr(const char *path, struct stat *statbuf)
             path, statbuf);
     bb_fullpath(fpath, path);
 
+//    retstat = log_syscall("lstat", lstat(fpath, statbuf), 0);
     retstat = log_syscall("lstat", file_getattr(BB_DATA->file_handler, path, statbuf), 0);
 
     log_stat(statbuf);
@@ -140,6 +141,7 @@ int bb_mknod(const char *path, mode_t mode, dev_t dev)
     // make a fifo, but saying it should never actually be used for
     // that.
     if (S_ISREG(mode)) {
+//        retstat = log_syscall("open", open(fpath, O_CREAT | O_EXCL | O_WRONLY, mode), 0);
         retstat = log_syscall("open", file_mknod(BB_DATA->file_handler, path, mode), 0);
 //        if (retstat >= 0)
 //            retstat = log_syscall("close", close(retstat), 0);
@@ -174,6 +176,7 @@ int bb_unlink(const char *path)
             path);
     bb_fullpath(fpath, path);
 
+//    return log_syscall("unlink", unlink(fpath), 0);
     return log_syscall("unlink", file_unlink(BB_DATA->file_handler, path), 0);
 }
 
@@ -267,6 +270,7 @@ int bb_truncate(const char *path, off_t newsize)
             path, newsize);
     bb_fullpath(fpath, path);
 
+//    return log_syscall("truncate", truncate(fpath, newsize), 0);
     return log_syscall("truncate", file_truncate(BB_DATA->file_handler, path, newsize), 0);
 }
 
@@ -306,6 +310,7 @@ int bb_open(const char *path, struct fuse_file_info *fi)
     // if the open call succeeds, my retstat is the file descriptor,
     // else it's -errno.  I'm making sure that in that case the saved
     // file descriptor is exactly -1.
+//    fd = log_syscall("open", open(fpath, fi->flags), 0);
     fd = log_syscall("open", file_open(BB_DATA->file_handler, path, fi->flags), 0);
     if (fd < 0)
         retstat = log_error("open");
@@ -342,6 +347,7 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
     // no need to get fpath on this one, since I work from fi->fh not the path
     log_fi(fi);
 
+//    return log_syscall("pread", pread(fi->fh, buf, size, offset), 0);
     return log_syscall("pread", file_read(BB_DATA->file_handler, fi->fh, buf, size, offset), 0);
 }
 
@@ -366,6 +372,7 @@ int bb_write(const char *path, const char *buf, size_t size, off_t offset,
     // no need to get fpath on this one, since I work from fi->fh not the path
     log_fi(fi);
 
+//    return log_syscall("pwrite", pwrite(fi->fh, buf, size, offset), 0);
     return log_syscall("pwrite", file_write(BB_DATA->file_handler, fi->fh, buf, size, offset), 0);
 }
 
@@ -448,6 +455,7 @@ int bb_release(const char *path, struct fuse_file_info *fi)
 
     // We need to close the file.  Had we allocated any resources
     // (buffers etc) we'd need to free them here as well.
+//    return log_syscall("close", close(fi->fh), 0);
     return log_syscall("close", file_release(BB_DATA->file_handler, fi->fh), 0);
 }
 
@@ -780,6 +788,7 @@ int bb_ftruncate(const char *path, off_t offset, struct fuse_file_info *fi)
             path, offset, fi);
     log_fi(fi);
 
+//    retstat = ftruncate(fi->fh, offset);
     retstat = file_ftruncate(BB_DATA->file_handler, fi->fh, offset);
     if (retstat < 0)
         retstat = log_error("bb_ftruncate ftruncate");
@@ -814,6 +823,7 @@ int bb_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *f
     if (!strcmp(path, "/"))
         return bb_getattr(path, statbuf);
 
+//    retstat = fstat(fi->fh, statbuf);
     retstat = file_fgetattr(BB_DATA->file_handler, fi->fh, statbuf);
     if (retstat < 0)
         retstat = log_error("bb_fgetattr fstat");

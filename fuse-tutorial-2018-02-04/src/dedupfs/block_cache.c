@@ -22,6 +22,7 @@ struct block_cache * cache_init(int fd, int size, struct file_handler_conf *file
     cache->block_size = file_handler->block_handler.block_size;
     cache->hash_type = file_handler->block_handler.hash_type;
     cache->hash_length = file_handler->block_handler.hash_length;
+    return cache;
 }
 
 int cache_write(struct block_cache *cache, const void *buf, size_t size, off_t offset) {
