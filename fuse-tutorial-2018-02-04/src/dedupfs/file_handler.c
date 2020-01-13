@@ -178,7 +178,42 @@ int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
 }
 
 int file_unlink(struct file_handler_conf *conf, const char *path) {
-    // TODO
+    // TODO check errors
+    char full_path[PATH_MAX];
+    int fd;
+    int ret_value = 0;
+    long file_size, file_blocks;
+    unsigned char hash[conf->block_handler.block_size];
+
+    get_full_path(conf, full_path, path);
+
+    if ((fd = open(full_path, O_RDONLY)) == -1) {
+        return -errno;
+    }
+
+    if ((ret_value = read(fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+        if (ret_value < 0) {
+            ret_value = -errno;
+        }
+        else {
+            // TODO
+            ret_value = -EIO;
+        }
+    }
+
+    file_blocks = (file_size % conf->block_handler.block_size) == 0 ? file_size/conf->block_handler.block_size : file_size/conf->block_handler.block_size + 1;
+    for (int i = 0; i < file_blocks; i++) {
+        read(fd, hash, hash_length[conf->hash_type-1]);
+        block_delete(hash);
+    }
+
+    if (close(fd) == -1) {
+        return -errno;
+    }
+
+    unlink(full_path);
+
+    return ret_value;
 }
 
 int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_size) {
