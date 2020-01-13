@@ -244,11 +244,30 @@ int file_fsync(struct file_handler_conf *conf, int fd) {
 }
 
 int file_ftruncate(struct file_handler_conf *conf, int fd, off_t offset) {
-    // TODO
+    // TODO eing?
+    return file_set_size(conf, fd, offset);
 }
 
 int file_fgetattr(struct file_handler_conf *conf, int fd, struct stat *stat_buf) {
-    // TODO
+
+    int ret_value = 0;
+
+    long file_size;
+    // TODO check errors
+    file_get_size(conf, fd, &file_size);
+
+    if (fstat(conf->file_descriptors[fd]->index_fd, stat_buf) == -1) {
+        return -errno;
+    }
+
+    stat_buf->st_size = file_size;
+    // TODO ?
+    stat_buf->st_blksize = conf->block_handler.block_size;
+    stat_buf->st_blocks = (file_size % stat_buf->st_blksize) == 0 ? file_size/stat_buf->st_blksize : file_size/stat_buf->st_blksize + 1;
+//    stat_buf->st_blksize = 512;
+//    stat_buf->st_blocks = (file_size % 512) == 0 ? file_size/512 : file_size/512 + 1;
+
+    return ret_value;
 }
 
 int file_get_block_hash(struct file_handler_conf *conf, int fd, long block, unsigned char *hash) {
