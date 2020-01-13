@@ -217,7 +217,84 @@ int file_unlink(struct file_handler_conf *conf, const char *path) {
 }
 
 int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_size) {
-    // TODO
+    // TODO check errors
+    char full_path[PATH_MAX];
+    int fd;
+    int ret_value = 0;
+    long file_size, file_blocks, file_new_blocks;
+    unsigned char hash[conf->block_handler.block_size];
+
+    get_full_path(conf, full_path, path);
+
+    if ((fd = open(full_path, O_RDONLY)) == -1) {
+        return -errno;
+    }
+
+    if ((ret_value = read(fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+        if (ret_value < 0) {
+            ret_value = -errno;
+        }
+        else {
+            // TODO
+            ret_value = -EIO;
+        }
+    }
+
+    file_blocks = (file_size % conf->block_handler.block_size) == 0 ? file_size/conf->block_handler.block_size : file_size/conf->block_handler.block_size + 1;
+    file_new_blocks = (new_size % conf->block_handler.block_size) == 0 ? new_size/conf->block_handler.block_size : new_size/conf->block_handler.block_size + 1;
+
+
+    if (file_new_blocks < file_blocks) {
+        // set new size
+        lseek(fd, 0, SEEK_SET);
+        if ((ret_value = write(fd, &new_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+            if (ret_value < 0) {
+                ret_value = -errno;
+            }
+            else {
+                // TODO
+                ret_value = -EIO;
+            }
+        }
+
+        lseek(fd, FILE_SIZE_BYTES + (file_new_blocks*hash_length[conf->hash_type-1]), SEEK_SET);
+        for (int i = file_new_blocks; i < file_blocks; i++) {
+            // delete blocks
+            read(fd, hash, hash_length[conf->hash_type-1]);
+            block_delete(hash);
+        }
+
+        // truncate index file
+        ftruncate(fd, new_size);
+    }
+    else {
+        lseek(fd, FILE_SIZE_BYTES + (file_blocks*hash_length[conf->hash_type-1]), SEEK_SET);
+        for (int i = file_blocks; i < file_new_blocks; i++) {
+            // create blocks
+            block_create(conf->zero_block_data, conf->zero_block_hash);
+
+            // add hashes to index file
+            write(fd, conf->zero_block_hash, hash_length[conf->hash_type-1]);
+        }
+
+        // set new size
+        lseek(fd, 0, SEEK_SET);
+        if ((ret_value = write(fd, &new_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+            if (ret_value < 0) {
+                ret_value = -errno;
+            }
+            else {
+                // TODO
+                ret_value = -EIO;
+            }
+        }
+    }
+
+    if (close(fd) == -1) {
+        return -errno;
+    }
+
+    return ret_value;
 }
 
 int file_open(struct file_handler_conf *conf, const char *path, int flags) {
@@ -337,6 +414,7 @@ int file_get_size(struct file_handler_conf *conf, int fd, long *file_size) {
 // TODO check errors
 // TODO what happens if you set beyond the file size
 // TODO what happens if you reduce the file size
+// TODO ret value ?
 int file_set_size(struct file_handler_conf *conf, int fd, const long file_size) {
     int ret_value = 0;
     lseek(conf->file_descriptors[fd]->index_fd, 0, SEEK_SET);
