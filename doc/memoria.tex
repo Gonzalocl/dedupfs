@@ -7,7 +7,7 @@
 \usepackage[hidelinks]{hyperref}
 
 \pagestyle{fancy}
-%\lhead{}
+\lhead{}
 %\chead{}
 \rhead{Diseño y Estructura Interna de un Sistema Operativo}
 %\lfoot{}
@@ -47,22 +47,140 @@ Grado en Ingeniería Informática
 \newpage
 \section{Resumen del trabajo}
 
-\bigskip
-
+El trabajo trata de realizar un sistema de ficheros que deduplique los datos para poder ahorrar espacio en el disco. Se usa la biblioteca Fuse para hacer el sistema de ficheros. Se parte de un ejemplo (bbfs) que será modificado para añadir la funcionalidad, la mayor parte del código nuevo se encuentra en ficheros separados al del ejemplo, el ejemplo se a modificado poco para mantener la funcionalidad que no cambia (directorios) y la nueva funcionalidad se añade llamando al código nuevo. También se han realizado unos programas para probar algunas funciones del programa por separado con un correspondiente script que los ejecuta.
 
 \section{Conceptos}
 
 \begin{itemize}
-\item hash: dispersion
+\item Fichero indice: fichero donde se almacenan el tamaño del fichero que representa junto con los hashes de los bloques que forman el fichero.
+\item Fichero bloque: fichero donde realmente se almacenan los datos del fichero, también tiene un contador de referencias.
+\item Contador de referencias: está en los ficheros bloque e indica cuántos ficheros indice hacen referencia a él.
+\item Hash: resultado de una función de dispersión que identifica a un bloque.
+\item Rootdir: directorio donde se almacenan los datos y metadatos del sistema de ficheros.
+\item Mountdir: directorio donde el usuario realiza las acciones que llamaran a las funciones del sistema de ficheros.
 \end{itemize}
 
 
 \section{Descripción del trabajo}
 
-\subsection{Estructura}
-\subsection{Modulos}
+\subsection{Estructura del programa}
+El programa organiza la información en rootdir creando dos directorios uno en el que se almacenarán los ficheros bloque y otro en el que se almacenarán los ficheros índices.
+\bigskip
+
+El directorio donde se almacenan ficheros bloques se organiza de la siguiente manera: los bloques se referencian mediante su hash, el hash se divide en los dos primeros bytes y el resto, los dos primeros bytes servirán como nombre del directorio padre que almacenará todos los bloque cuyo hash comience por esos bytes. El resto de bytes del hash se usa para el nombre del fichero en esa carpeta. En ese fichero se almacenan realmente los datos y un contador de referencias al mismo. También en este directorio se almacena un fichero con la configuración del sistema de ficheros.
+\bigskip
+
+El directorio donde se almacenan los ficheros índice se organiza de la siguiente manera: se van creando directorios y ficheros según los va creando el usuario en mountdir. Los atributos de estos ficheros y directorios serán los que se correspondan con los que se muestran en mountdir excepto el tamaño. El contenido de estos ficheros será el tamaño del fichero que representa y una lista de hashes de bloques que forman el fichero que representa ordenados por bloques.
+\bigskip
+
+El programa está dividido en el programa principal y 3 módulos principalmente. El programa principal parte del tutorial de Fuse que se proporciona, tiene pocos cambiado, se encarga de gestionar los directorios y llama al módulo file\_handler.h cuando sea necesario. El módulo file\_handler.h se encarga de gestionar los ficheros en el directorio que contiene los ficheros índices. El módulo block\_handler.h se encarga de gestionar los ficheros en el directorio que contiene los ficheros bloques. El módulo block\_cache.h se encarga de dividir las operaciones de lectura y escritura en bloques y calcular sus hashes. El módulo auxiliar get\_hash.h es muy simple y lo único que hace es aportar una función que calcule el hash del bloque.
+
+\subsection{Modulo block\_handler.h}
+
+Este módulo tiene principalmente la estructura de datos struct block\_handler\_conf con los campos:
+
+\begin{itemize}
+\item blocks\_path: nombre de la carpeta donde se almacenan los ficheros bloques.
+\item block\_size: tamaño del bloque.
+\item hash\_type: el hash a utilizar.
+\item hash\_length: la longitud del hash usado.
+\item hash\_split: en cuantas partes se va a dividir el hash para el directorio y el nombre del fichero.
+\item hash\_split\_size: tamaño de la s divisiones.
+\item bytes\_link\_counter: número de bytes usados para el contador de referencias.
+\end{itemize}
+
+La estructura se usa para almacenar la configuración.
+\bigskip
+
+Las principales funciones del módulo son:
+\begin{itemize}
+\item block\_handler\_init(): se le pasa la ruta del rootdir y una estructura de datos donde se le indica la configuración que tiene que usar. Se encarga de inicializar el módulo, comprobar que la configuración que se le pasa es correcta y guardar la configuración.
+\item block\_create(): se le pasa el hash del bloque y los datos. Se encarga de añadir un bloque a la base de datos, comprueba si el bloque ya existe en ese caso solo tiene que incrementar el contador de referencias de dicho bloque en caso contrario crea el bloque y con el contador de referencias a 1.
+\item block\_delete(): se le pasa el hash del bloque. Se encarga de eliminar un bloque a la base de datos, lee el contador de referencias de dicho bloque y le resta uno en caso de que fuese la última referencia lo elimina.
+\item block\_read(): se le pasa el hash del bloque y un array donde se escribirán los datos leídos.
+\end{itemize}
+
+\subsection{Modulo block\_cache.h}
+
+Este módulo divide las escrituras y las lecturas en bloques con las funciones cache\_read() y cache\_write() respectivamente y usa el módulo block\_handler.h para leer o escribir los bloques. Una vez escritos los bloques le indica al modulo file\_handler.h el hash del bloque escrito. Para usar este módulo hay que llamar primero a la funcion cache\_init() para reservar los recursos necesarios y luego a cache\_end() para liberarlos.
+
+\subsection{Modulo get\_hash.h}
+
+Este módulo es muy sencillo solo tiene una función, get\_hash(), que calcula el hash de los datos que se le pasan.
+
+\subsection{Modulo file\_handler.h}
+
+Este módulo es el encargado de gestionar los ficheros índice y los ficheros a los que representa.
+\bigskip
+
+La estructura de datos struct file\_descriptor representa un fichero abierto y sus campos significan:
+\begin{itemize}
+\item index\_fd: descriptor de fichero del fichero índice relativo al fichero abierto
+\item cache: estructura de datos para poder llamar al módulo block\_cache.h en este fichero
+\end{itemize}
+
+
+
+
+La estructura de datos struct file\_handler\_conf se usa para mantener el estado de este módulo y sus campos significan:
+
+\begin{itemize}
+\item fs\_path: ruta rootdir.
+\item files\_path: nombre de la carpeta donde se almacenan los ficheros índice.
+\item full\_files\_path: concatenacion de fs\_path y files\_path.
+\item hash\_type: el hash a utilizar.
+\item block\_handler: estructura de datos para mantener el estado del modulo block\_handler.h.
+\item file\_open\_max: máximo número de ficheros abiertos.
+\item file\_descriptors: array donde mantener las estructuras struct file\_descriptor de los ficheros abiertos
+\item fd\_counter: variable para facilitar la búsqueda de un descriptor de fichero libre.
+\item zero\_block\_hash: hash de un bloque con todo a 0.
+\item zero\_block\_data: un array del tamaño de un bloque con todo a 0.
+\end{itemize}
+
+Las principales funciones del módulo son:
+
+\begin{itemize}
+\item file\_handler\_init(): es necesario llamar a esta función para inicializar el módulo con la configuración. También inicializa el módulo block\_handler.h y crea un bloque con todo 0, que será  usado más tarde par rellenar huecos.
+\item file\_mknod(): crea un nuevo fichero indice y lo inicializa a tamaño 0.
+\item file\_unlink(): elimina un fichero indice y sus bloques en caso de que tuviera.
+\item file\_open(): busca un descriptor de fichero para abrir el fichero y reserva los recursos necesarios.
+\item file\_read(): comprueba si se quiere leer más allá del tamaño del fichero en ese caso reduce el tamaño de la lectura y luego llama al módulo block\_cache.h.
+\item file\_write(): comprueba si se quiere escribir más allá del tamaño del fichero en ese caso rellena el fichero con bloques con 0 y luego llama al módulo block\_cache.h.
+\item file\_release(): libera los recursos que se reservaron al abrir un fichero.
+\item file\_ftruncate(): cambia el tamaño de un fichero en caso de que reduzca el tamaño borra los bloques oportunos en caso contrario rellena con ceros y en ambos casos deja reflejados los cambios en el fichero índice correspondiente. La funcion file\_truncate() es parecida a esta.
+\item file\_fgetattr(): llama a fstat en el fichero índice correspondiente al fichero que representa el descriptor de fichero y modifica el resultado para cambiar el tamaño del fichero al que corresponde al fichero que representa. La funcion file\_getattr() es parecida a esta.
+\item file\_get\_block\_hash(): se usa para obtener los hashes de los bloques que pertenecen a un fichero.
+\item file\_set\_block\_hash(): se usa para establecer los hashes de los bloques que pertenecen a un fichero.
+\end{itemize}
+
+
+\subsection{Programa principal bbfs.c}
+
+Este programa parte del tutorial de Fuse, los cambios realizados son los siguientes:
+
+
+\begin{itemize}
+\item Modificado las funciones bb\_getattr() bb\_unlink() bb\_truncate() bb\_open() bb\_read() bb\_write() bb\_release() bb\_ftruncate() y bb\_fgetattr() para llamar a la función correspondiente del módulo file\_handler.h.
+\item Modificando la función bb\_mknod() para llamar a la función file\_mknod() pero solo en el caso de que sean ficheros regulares.
+\item Modificado la función bb\_fullpath() para que incluya en la ruta el directorio de ficheros índice.
+\item Modificado la función main() para leer el tamaño de bloque por línea de comandos.
+\item En el fichero params.h en la estructura de datos struct bb\_state añadido un campo para mantener el estado del módulo file\_handler.h.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \section{Manual de usuario}
-
 
 \end{document}
