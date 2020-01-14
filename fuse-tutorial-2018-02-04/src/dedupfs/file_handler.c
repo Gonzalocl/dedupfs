@@ -10,6 +10,7 @@
 #include "block_cache.h"
 #include "get_hash.h"
 //#include "../log.h"
+
 #define TRUE (0==0)
 #define FALSE (!TRUE)
 
@@ -380,6 +381,7 @@ int file_ftruncate(struct file_handler_conf *conf, int fd, off_t new_size) {
     unsigned char hash[conf->block_handler.block_size];
     int index_fd = conf->file_descriptors[fd]->index_fd;
 
+    lseek(index_fd, 0, SEEK_SET);
     if ((ret_value = read(index_fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
         if (ret_value < 0) {
             ret_value = -errno;
@@ -421,7 +423,7 @@ int file_ftruncate(struct file_handler_conf *conf, int fd, off_t new_size) {
         lseek(index_fd, FILE_SIZE_BYTES + (file_blocks*hash_length[conf->hash_type-1]), SEEK_SET);
         for (int i = file_blocks; i < file_new_blocks; i++) {
             // create blocks
-            block_create(conf->zero_block_data, conf->zero_block_hash);
+            block_create(conf->zero_block_hash, conf->zero_block_data);
 
             // add hashes to index file
             write(index_fd, conf->zero_block_hash, hash_length[conf->hash_type-1]);
