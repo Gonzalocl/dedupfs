@@ -73,7 +73,9 @@ int file_handler_init(struct file_handler_conf *conf) {
     }
     memset(conf->file_descriptors, 0, conf->file_open_max * sizeof(struct block_cache *));
     int ret_value = block_handler_init(conf->fs_path, &conf->block_handler);
-
+    if (ret_value < 0) {
+        return ret_value;
+    }
     // create zero block
     conf->zero_block_hash = malloc(conf->block_handler.hash_length);
     conf->zero_block_data = malloc(conf->block_handler.block_size);

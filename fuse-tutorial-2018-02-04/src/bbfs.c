@@ -950,7 +950,7 @@ int main(int argc, char *argv[])
     strcpy(bb_data->file_handler->files_path, "files");
     bb_data->file_handler->hash_type = 1;
     strcpy(bb_data->file_handler->block_handler.blocks_path, "blocks");
-    bb_data->file_handler->block_handler.block_size = 1000;
+    bb_data->file_handler->block_handler.block_size = block_size;
     bb_data->file_handler->block_handler.hash_split = 1;
     bb_data->file_handler->block_handler.hash_split_size = 1;
 
