@@ -934,7 +934,7 @@ int main(int argc, char *argv[])
     strcpy(bb_data->file_handler->block_handler.blocks_path, "blocks");
     bb_data->file_handler->block_handler.block_size = 1000;
     bb_data->file_handler->block_handler.hash_split = 1;
-    bb_data->file_handler->block_handler.hash_split_size = 2;
+    bb_data->file_handler->block_handler.hash_split_size = 1;
 
     int ret;
     if ((ret = file_handler_init(bb_data->file_handler)) < 0) {

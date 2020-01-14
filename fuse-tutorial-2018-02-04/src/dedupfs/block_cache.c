@@ -155,6 +155,7 @@ int cache_read(struct block_cache *cache, void *buf, size_t size, off_t offset) 
 }
 
 int cache_end(struct block_cache *cache) {
+    free(cache);
     return 0;
 }
 

@@ -219,7 +219,7 @@ int file_unlink(struct file_handler_conf *conf, const char *path) {
 
     unlink(full_path);
 
-    return ret_value;
+    return 0;
 }
 
 int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_size) {
