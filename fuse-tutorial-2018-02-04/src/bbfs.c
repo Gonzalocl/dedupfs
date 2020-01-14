@@ -918,6 +918,24 @@ int main(int argc, char *argv[])
         abort();
     }
 
+    int block_size = 0;
+    for (int i = 0; i < argc; i++) {
+        if (argv[i][0] == '-' && strcmp(argv[i], "--block-size") == 0) {
+            if (argc > (i + 1)) {
+                block_size = atoi(argv[i+1]);
+                argc-=2;
+                for (int j = i; j < argc; j++) {
+                    argv[j] = argv[j+2];
+                }
+                argv[argc] = NULL;
+            }
+            else {
+                bb_usage();
+            }
+            break;
+        }
+    }
+
     // Pull the rootdir out of the argument list and save it in my
     // internal data
     bb_data->rootdir = realpath(argv[argc-2], NULL);
