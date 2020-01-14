@@ -170,17 +170,61 @@ Este programa parte del tutorial de Fuse, los cambios realizados son los siguien
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 \section{Manual de usuario}
+
+\subsection{Programa principal}
+Se puede compilar con ./configure y make desde la carpeta raíz del tutorial.
+\bigskip
+
+Para ejecutar el programa hay que usar la opción -s porque no está preparado para funcionar sin ella.
+\bigskip
+
+Para especificar el tamaño de bloque hay que usar la opción --block-size <tamaño de bloque>, la primera vez que se ejecute se puede poner o no la opción especificar el tamaño de bloque, si no se pone se pondrá por defecto 4096. En posteriores ejecuciones se puede poner o no, en caso de que se ponga y no coincida con lo que se puso en un principio el programa terminará con un error.
+\bigskip
+
+Y para desmontar el sistema de ficheros usamos el comando fusermount.
+\bigskip
+
+Por ejemplo se puede ejecutar con los siguientes comandos:
+
+\begin{verbatim}
+fuse-tutorial-2018-02-04$ ./configure 
+fuse-tutorial-2018-02-04$ make
+fuse-tutorial-2018-02-04$ cd example/
+fuse-tutorial-2018-02-04/example$ ../src/bbfs --block-size 4096 -s rootdir/ mountdir/
+fuse-tutorial-2018-02-04/example$ fusermount -u mountdir
+\end{verbatim}
+
+
+
+
+
+
+
+\subsection{Tests}
+
+
+Hay unos programas de test que ejecutan las funciones por separado, se pueden compilar con su Makefile y se ejecutan con el script test\_all.sh. Se encuentran en la carpeta fuse-tutorial-2018-02-04/src/dedupfs/test.
+\bigskip
+
+Por ejemplo se pueden probar de la siguiente forma:
+\begin{verbatim}
+fuse-tutorial-2018-02-04$ cd src/dedupfs/test/
+fuse-tutorial-2018-02-04/src/dedupfs/test$ make
+fuse-tutorial-2018-02-04/src/dedupfs/test$ ./test_all.sh
+\end{verbatim}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \end{document}
