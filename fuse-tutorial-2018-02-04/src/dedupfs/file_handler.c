@@ -147,7 +147,8 @@ int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *
 //    stat_buf->st_blksize = 512;
 //    stat_buf->st_blocks = (file_size % 512) == 0 ? file_size/512 : file_size/512 + 1;
 
-    return ret_value;
+//    return ret_value;
+    return 0;
 }
 
 int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
@@ -338,7 +339,7 @@ int file_read(struct file_handler_conf *conf, int fd, void *buf, size_t size, of
         return 0;
     }
 
-    read_size = file_size < (offset + size) ? (file_size - offset - 1) : size;
+    read_size = file_size < (offset + size) ? (file_size - offset) : size;
 
     // call cache read
     cache_read(conf->file_descriptors[fd]->cache, buf, read_size, offset);
