@@ -10,7 +10,7 @@ test_get_hash.sh
 test_cache_write.sh
 test_cache_read.sh"
 
-
+mkdir bin
 make clean
 make
 
