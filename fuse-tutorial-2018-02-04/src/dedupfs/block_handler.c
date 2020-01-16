@@ -316,6 +316,7 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
 
     }
 
+    memcpy(conf, handler_conf, sizeof(struct block_handler_conf));
     return 0;
     error1:
     free(handler_conf);
