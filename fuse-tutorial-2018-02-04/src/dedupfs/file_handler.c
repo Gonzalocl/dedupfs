@@ -111,7 +111,7 @@ int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *
 
     char full_path[PATH_MAX];
     int fd;
-    int ret_value = 0;
+    int ret, ret_value = 0;
 
     get_full_path(conf, full_path, path);
 
@@ -128,8 +128,8 @@ int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *
     }
 
     long file_size;
-    if ((ret_value = read(fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
-        if (ret_value < 0) {
+    if ((ret = read(fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+        if (ret < 0) {
             ret_value = -errno;
         }
         else {
@@ -149,8 +149,7 @@ int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *
 //    stat_buf->st_blksize = 512;
 //    stat_buf->st_blocks = (file_size % 512) == 0 ? file_size/512 : file_size/512 + 1;
 
-//    return ret_value;
-    return 0;
+    return ret_value;
 }
 
 int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
@@ -158,7 +157,7 @@ int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
     // TODO delete if error?
     char full_path[PATH_MAX];
     int fd;
-    int ret_value = 0;
+    int ret, ret_value = 0;
 
     get_full_path(conf, full_path, path);
 
@@ -167,8 +166,8 @@ int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
     }
 
     long file_size = 0;
-    if ((ret_value = write(fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
-        if (ret_value < 0) {
+    if ((ret = write(fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+        if (ret < 0) {
             ret_value = -errno;
         }
         else {
@@ -181,14 +180,14 @@ int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
         return -errno;
     }
 
-    return 0;
+    return ret_value;
 }
 
 int file_unlink(struct file_handler_conf *conf, const char *path) {
     // TODO check errors
     char full_path[PATH_MAX];
     int fd;
-    int ret_value = 0;
+    int ret, ret_value = 0;
     long file_size, file_blocks;
     unsigned char hash[conf->block_handler.block_size];
 
@@ -198,8 +197,8 @@ int file_unlink(struct file_handler_conf *conf, const char *path) {
         return -errno;
     }
 
-    if ((ret_value = read(fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
-        if (ret_value < 0) {
+    if ((ret = read(fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+        if (ret < 0) {
             ret_value = -errno;
         }
         else {
@@ -220,14 +219,14 @@ int file_unlink(struct file_handler_conf *conf, const char *path) {
 
     unlink(full_path);
 
-    return 0;
+    return ret_value;
 }
 
 int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_size) {
     // TODO check errors
     char full_path[PATH_MAX];
     int fd;
-    int ret_value = 0;
+    int ret, ret_value = 0;
     long file_size, file_blocks, file_new_blocks;
     unsigned char hash[conf->block_handler.block_size];
 
@@ -237,8 +236,8 @@ int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_si
         return -errno;
     }
 
-    if ((ret_value = read(fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
-        if (ret_value < 0) {
+    if ((ret = read(fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+        if (ret < 0) {
             ret_value = -errno;
         }
         else {
@@ -254,8 +253,8 @@ int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_si
     if (file_new_blocks < file_blocks) {
         // set new size
         lseek(fd, 0, SEEK_SET);
-        if ((ret_value = write(fd, &new_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
-            if (ret_value < 0) {
+        if ((ret = write(fd, &new_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+            if (ret < 0) {
                 ret_value = -errno;
             }
             else {
@@ -286,8 +285,8 @@ int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_si
 
         // set new size
         lseek(fd, 0, SEEK_SET);
-        if ((ret_value = write(fd, &new_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
-            if (ret_value < 0) {
+        if ((ret = write(fd, &new_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+            if (ret < 0) {
                 ret_value = -errno;
             }
             else {
@@ -377,14 +376,14 @@ int file_fsync(struct file_handler_conf *conf, int fd) {
 
 int file_ftruncate(struct file_handler_conf *conf, int fd, off_t new_size) {
     // TODO check errors
-    int ret_value = 0;
+    int ret, ret_value = 0;
     long file_size, file_blocks, file_new_blocks;
     unsigned char hash[conf->block_handler.block_size];
     int index_fd = conf->file_descriptors[fd]->index_fd;
 
     lseek(index_fd, 0, SEEK_SET);
-    if ((ret_value = read(index_fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
-        if (ret_value < 0) {
+    if ((ret = read(index_fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+        if (ret < 0) {
             ret_value = -errno;
         }
         else {
@@ -400,8 +399,8 @@ int file_ftruncate(struct file_handler_conf *conf, int fd, off_t new_size) {
     if (file_new_blocks < file_blocks) {
         // set new size
         lseek(index_fd, 0, SEEK_SET);
-        if ((ret_value = write(index_fd, &new_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
-            if (ret_value < 0) {
+        if ((ret = write(index_fd, &new_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+            if (ret < 0) {
                 ret_value = -errno;
             }
             else {
@@ -432,8 +431,8 @@ int file_ftruncate(struct file_handler_conf *conf, int fd, off_t new_size) {
 
         // set new size
         lseek(index_fd, 0, SEEK_SET);
-        if ((ret_value = write(index_fd, &new_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
-            if (ret_value < 0) {
+        if ((ret = write(index_fd, &new_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+            if (ret < 0) {
                 ret_value = -errno;
             }
             else {
@@ -483,10 +482,10 @@ int file_set_block_hash(struct file_handler_conf *conf, int fd, long block, cons
 
 // TODO check errors
 int file_get_size(struct file_handler_conf *conf, int fd, long *file_size) {
-    int ret_value = 0;
+    int ret, ret_value = 0;
     lseek(conf->file_descriptors[fd]->index_fd, 0, SEEK_SET);
-    if ((ret_value = read(conf->file_descriptors[fd]->index_fd, file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
-        if (ret_value < 0) {
+    if ((ret = read(conf->file_descriptors[fd]->index_fd, file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+        if (ret < 0) {
             ret_value = -errno;
         }
         else {
@@ -502,10 +501,10 @@ int file_get_size(struct file_handler_conf *conf, int fd, long *file_size) {
 // TODO what happens if you reduce the file size
 // TODO ret value ?
 int file_set_size(struct file_handler_conf *conf, int fd, const long file_size) {
-    int ret_value = 0;
+    int ret, ret_value = 0;
     lseek(conf->file_descriptors[fd]->index_fd, 0, SEEK_SET);
-    if ((ret_value = write(conf->file_descriptors[fd]->index_fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
-        if (ret_value < 0) {
+    if ((ret = write(conf->file_descriptors[fd]->index_fd, &file_size, FILE_SIZE_BYTES)) < FILE_SIZE_BYTES) {
+        if (ret < 0) {
             ret_value = -errno;
         }
         else {
