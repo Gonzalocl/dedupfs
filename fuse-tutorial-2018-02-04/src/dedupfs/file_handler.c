@@ -31,7 +31,6 @@ static void get_full_path(struct file_handler_conf *conf, char *full_path, const
     snprintf(full_path, PATH_MAX, "%s%s", conf->full_files_path, relative_path);
 }
 
-// TODO test this
 static int next_fd(struct file_handler_conf *conf) {
     int fd = conf->fd_counter;
     if (conf->file_descriptors[fd] == NULL) {
@@ -67,7 +66,7 @@ int file_handler_init(struct file_handler_conf *conf) {
     conf->block_handler.hash_length = hash_length[conf->hash_type-1];
     conf->block_handler.bytes_link_counter = DEFAULT_BYTES_LINK_COUNTER;
     conf->file_open_max = DEFAULT_FILE_OPEN_MAX;
-    conf->fd_counter = 10;
+    conf->fd_counter = 0;
     if ((conf->file_descriptors = malloc(conf->file_open_max * sizeof(struct file_descriptor *))) == NULL) {
         return -errno;
     }
@@ -322,7 +321,6 @@ int file_open(struct file_handler_conf *conf, const char *path, int flags) {
     // TODO flags?
     if ((conf->file_descriptors[fd]->index_fd = open(full_path, O_RDWR)) == -1) {
         free(conf->file_descriptors[fd]);
-        // TODO necessary?
         conf->file_descriptors[fd] = NULL;
         return -errno;
     }
@@ -370,6 +368,7 @@ int file_release(struct file_handler_conf *conf, int fd) {
     close(conf->file_descriptors[fd]->index_fd);
     cache_end(conf->file_descriptors[fd]->cache);
     free(conf->file_descriptors[fd]);
+    conf->file_descriptors[fd] = NULL;
 }
 
 int file_fsync(struct file_handler_conf *conf, int fd) {
