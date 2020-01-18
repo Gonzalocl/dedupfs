@@ -193,6 +193,13 @@ int file_unlink(struct file_handler_conf *conf, const char *path) {
 
     get_full_path(conf, full_path, path);
 
+    struct stat buf;
+    lstat(full_path, &buf);
+    if (S_ISLNK(buf.st_mode)) {
+        unlink(full_path);
+        return ret_value;
+    }
+
     if ((fd = open(full_path, O_RDONLY)) == -1) {
         return -errno;
     }
