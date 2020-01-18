@@ -232,7 +232,7 @@ int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_si
 
     get_full_path(conf, full_path, path);
 
-    if ((fd = open(full_path, O_RDONLY)) == -1) {
+    if ((fd = open(full_path, O_RDWR)) == -1) {
         return -errno;
     }
 
@@ -271,7 +271,7 @@ int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_si
         }
 
         // truncate index file
-        ftruncate(fd, new_size);
+        ftruncate(fd, FILE_SIZE_BYTES + (file_new_blocks*hash_length[conf->hash_type-1]));
     }
     else {
         lseek(fd, FILE_SIZE_BYTES + (file_blocks*hash_length[conf->hash_type-1]), SEEK_SET);
@@ -417,7 +417,7 @@ int file_ftruncate(struct file_handler_conf *conf, int fd, off_t new_size) {
         }
 
         // truncate index file
-        ftruncate(index_fd, new_size);
+        ftruncate(index_fd, FILE_SIZE_BYTES + (file_new_blocks*hash_length[conf->hash_type-1]));
     }
     else {
         lseek(index_fd, FILE_SIZE_BYTES + (file_blocks*hash_length[conf->hash_type-1]), SEEK_SET);
