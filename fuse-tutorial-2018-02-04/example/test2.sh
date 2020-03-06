@@ -43,17 +43,20 @@ root_dir_initial_size=$(du -s "$test_root_dir" | cut -f 1)
 function run_ref_test {
   id="$1"
   shift
-  ref_cmd=""
-  test_cmd=""
-  for p in "$@"; do
-    ref_cmd="$ref_cmd ${p//__mount_dir__/$ref_mount_dir}"
-    test_cmd="$test_cmd ${p//__mount_dir__/$test_mount_dir}"
-  done
-  #cd
-  $ref_cmd > "$ref_ws/$id.stdout" 2> "$ref_ws/$id.stderr"
-  #cd
-  $test_cmd > "$test_ws/$id.stdout" 2> "$test_ws/$id.stderr"
-  # diff
+
+  cd "$ref_ws"
+  "$@" > "$ref_ws/$id.stdout" 2> "$ref_ws/$id.stderr"
+
+  cd "$test_ws"
+  "$@" > "$test_ws/$id.stdout" 2> "$test_ws/$id.stderr"
+
+  echo "########################### STDOUT ###############################"
+  diff "$ref_ws/$id.stdout" "$test_ws/$id.stdout"
+  echo
+
+  echo "########################### STDERR ###############################"
+  diff "$ref_ws/$id.stderr" "$test_ws/$id.stderr"
+  echo; echo; echo
 }
 
 
@@ -61,8 +64,8 @@ function run_ref_test {
 #cp -a "$ref_etc" "$ref_mount_dir/etc$id" > "$ref_ws/etc$id.stdout" 2> "$ref_ws/etc$id.stderr"
 #cp -a "$ref_etc" "$test_mount_dir/etc$id" > "$test_ws/etc$id.stdout" 2> "$test_ws/etc$id.stderr"
 
-run_ref_test "etc0" cp -a "$ref_etc" "__mount_dir__/etc0"
-run_ref_test "diff0" diff -r "$ref_etc" "__mount_dir__/etc0"
+run_ref_test "etc0" cp -a "$ref_etc" "$mount_dir/etc0"
+run_ref_test "diff0" diff -r "$ref_etc" "$mount_dir/etc0"
 
 #cp -a ../etc/ etc1
 #diff -r ../etc/ etc1/
