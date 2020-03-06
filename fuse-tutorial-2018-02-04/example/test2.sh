@@ -38,7 +38,12 @@ cp -a /etc "$ref_etc" > /dev/null 2> /dev/null
 
 ref_etc_size=$(du -s "$ref_etc" | cut -f 1)
 root_dir_initial_size=$(du -s "$test_root_dir" | cut -f 1)
-
+root_dir_size_table="$root_dir_size_table
+$(echo /etc folder size: $ref_etc_size)"
+root_dir_size_table="$root_dir_size_table
+$(echo Initial root_dir size: $root_dir_initial_size)"
+root_dir_size_table="$root_dir_size_table
+$(echo etc,size,increase,ratio)"
 
 function run_ref_test {
   id="$1"
@@ -59,29 +64,23 @@ function run_ref_test {
   echo; echo; echo
 }
 
+function f_div {
+  python -c "print('%.2f' % ($1/$2))"
+}
 
-#id="0"
-#cp -a "$ref_etc" "$ref_mount_dir/etc$id" > "$ref_ws/etc$id.stdout" 2> "$ref_ws/etc$id.stderr"
-#cp -a "$ref_etc" "$test_mount_dir/etc$id" > "$test_ws/etc$id.stdout" 2> "$test_ws/etc$id.stderr"
+last_root_dir_size="$root_dir_initial_size"
+for i in $(seq 1 10); do
+  run_ref_test "etc$i" cp -a "$ref_etc" "$mount_dir/etc$i"
+  run_ref_test "diff$i" diff -r "$ref_etc" "$mount_dir/etc$i"
+  run_ref_test "du$i" du -s "$mount_dir/etc$i"
+  root_dir_size=$(du -s "$test_root_dir" | cut -f 1)
+  increase="$(f_div $root_dir_size $last_root_dir_size)"
+  copressed="$(f_div $root_dir_size $((ref_etc_size*i)))"
+  root_dir_size_table="$root_dir_size_table
+  $(echo $i,$root_dir_size,$increase,$copressed)"
+  last_root_dir_size="$root_dir_size"
+done
 
-run_ref_test "etc0" cp -a "$ref_etc" "$mount_dir/etc0"
-run_ref_test "diff0" diff -r "$ref_etc" "$mount_dir/etc0"
-
-#cp -a ../etc/ etc1
-#diff -r ../etc/ etc1/
-#du -sh ../rootdir/
-#read l
-#
-#cp -a etc1/ etc2
-#diff -r etc1/ etc2
-#du -sh ../rootdir/
-#read l
-#
-#cp -a etc2 etc3
-#diff -r etc2 etc3
-#du -sh ../rootdir/
-#read l
-#
 #dd if=/dev/zero  of=zero bs=1024 count=100000
 #ls -lh zero
 #du -sh ../rootdir/
@@ -96,8 +95,11 @@ run_ref_test "diff0" diff -r "$ref_etc" "$mount_dir/etc0"
 #read l
 #
 #cd ..
+
+echo "$root_dir_size_table" | column -s ',' -t
+
 sleep 1
 fusermount -u "$test_mount_dir"
 
-#rm -rf "$test_ws"
-#rm -rf "$ref_ws"
+rm -rf "$test_ws"
+rm -rf "$ref_ws"
