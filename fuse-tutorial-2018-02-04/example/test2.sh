@@ -1,9 +1,9 @@
 #!/bin/bash
 
-fs_bin="../src/bbfs"
+fs_bin=$(realpath "../src/bbfs")
 mount_dir="mount_dir"
 root_dir="root_dir"
-
+work_dir=$(pwd)
 
 # cleaning
 rm -rf rootdir/*
@@ -15,6 +15,8 @@ cd example
 
 # test workspace
 test_ws="$(mktemp -d -p . 'tmp.test.XXXX')"
+test_ws="$(realpath $test_ws)"
+
 test_mount_dir="$test_ws/$mount_dir"
 test_root_dir="$test_ws/$root_dir"
 mkdir -p "$test_mount_dir"
@@ -22,6 +24,7 @@ mkdir -p "$test_root_dir"
 
 # reference workspace
 ref_ws="$(mktemp -d -p . 'tmp.ref.XXXX')"
+ref_ws="$(realpath $ref_ws)"
 
 ref_mount_dir="$ref_ws/$mount_dir"
 mkdir -p "$ref_mount_dir"
@@ -59,6 +62,7 @@ function run_ref_test {
 #cp -a "$ref_etc" "$test_mount_dir/etc$id" > "$test_ws/etc$id.stdout" 2> "$test_ws/etc$id.stderr"
 
 run_ref_test "etc0" cp -a "$ref_etc" "__mount_dir__/etc0"
+run_ref_test "diff0" diff -r "$ref_etc" "__mount_dir__/etc0"
 
 #cp -a ../etc/ etc1
 #diff -r ../etc/ etc1/
