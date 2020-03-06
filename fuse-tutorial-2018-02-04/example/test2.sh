@@ -38,11 +38,7 @@ cp -a /etc "$ref_etc" > /dev/null 2> /dev/null
 
 ref_etc_size=$(du -s "$ref_etc" | cut -f 1)
 root_dir_initial_size=$(du -s "$test_root_dir" | cut -f 1)
-root_dir_size_table="$(echo /etc folder size: $ref_etc_size)"
-root_dir_size_table="$root_dir_size_table
-$(echo Initial root_dir size: $root_dir_initial_size)"
-root_dir_size_table="$root_dir_size_table
-$(echo etc,size,increase,ratio)"
+root_dir_size_table="etc,size,increase,ratio"
 
 function run_ref_test {
   id="$1"
@@ -98,6 +94,8 @@ done
 #
 #cd ..
 
+echo "/etc folder size: $ref_etc_size"
+echo "Initial root_dir size: $root_dir_initial_size"
 echo "$root_dir_size_table" | tail -n +3 | column -s ',' -t
 
 sleep 1
