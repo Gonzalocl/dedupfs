@@ -33,13 +33,12 @@ ref_etc="$ref_ws/etc"
 cp -a /etc "$ref_etc" > /dev/null 2> /dev/null
 
 
-"$fs_bin" -s "$test_root_dir" "$test_mount_dir"
+"$fs_bin" -s --block-size 2048 "$test_root_dir" "$test_mount_dir"
 
 
 ref_etc_size=$(du -s "$ref_etc" | cut -f 1)
 root_dir_initial_size=$(du -s "$test_root_dir" | cut -f 1)
-root_dir_size_table="$root_dir_size_table
-$(echo /etc folder size: $ref_etc_size)"
+root_dir_size_table="$(echo /etc folder size: $ref_etc_size)"
 root_dir_size_table="$root_dir_size_table
 $(echo Initial root_dir size: $root_dir_initial_size)"
 root_dir_size_table="$root_dir_size_table
@@ -68,8 +67,9 @@ function f_div {
   python -c "print('%.2f' % ($1/$2))"
 }
 
+steps=10
 last_root_dir_size="$root_dir_initial_size"
-for i in $(seq 1 10); do
+for i in $(seq 1 $steps); do
   run_ref_test "etc$i" cp -a "$ref_etc" "$mount_dir/etc$i"
   run_ref_test "diff$i" diff -r "$ref_etc" "$mount_dir/etc$i"
   run_ref_test "du$i" du -s "$mount_dir/etc$i"
@@ -98,7 +98,7 @@ done
 #
 #cd ..
 
-echo "$root_dir_size_table" | column -s ',' -t
+echo "$root_dir_size_table" | tail -n +3 | column -s ',' -t
 
 sleep 1
 fusermount -u "$test_mount_dir"
