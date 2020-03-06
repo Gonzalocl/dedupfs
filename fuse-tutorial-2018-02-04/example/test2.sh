@@ -73,11 +73,13 @@ for i in $(seq 1 10); do
   run_ref_test "etc$i" cp -a "$ref_etc" "$mount_dir/etc$i"
   run_ref_test "diff$i" diff -r "$ref_etc" "$mount_dir/etc$i"
   run_ref_test "du$i" du -s "$mount_dir/etc$i"
+
   root_dir_size=$(du -s "$test_root_dir" | cut -f 1)
   increase="$(f_div $root_dir_size $last_root_dir_size)"
   copressed="$(f_div $root_dir_size $((ref_etc_size*i)))"
   root_dir_size_table="$root_dir_size_table
   $(echo $i,$root_dir_size,$increase,$copressed)"
+
   last_root_dir_size="$root_dir_size"
 done
 
