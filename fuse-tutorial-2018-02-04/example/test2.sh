@@ -14,14 +14,14 @@ cd example
 
 
 # test workspace
-test_ws="$(mktemp -d -p .)"
+test_ws="$(mktemp -d -p . 'tmp.test.XXXX')"
 test_mount_dir="$test_ws/$mount_dir"
 test_root_dir="$test_ws/$root_dir"
 mkdir -p "$test_mount_dir"
 mkdir -p "$test_root_dir"
 
 # reference workspace
-ref_ws="$(mktemp -d -p .)"
+ref_ws="$(mktemp -d -p . 'tmp.ref.XXXX')"
 
 ref_mount_dir="$ref_ws/$mount_dir"
 mkdir -p "$ref_mount_dir"
