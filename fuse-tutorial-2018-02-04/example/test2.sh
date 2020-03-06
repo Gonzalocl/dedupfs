@@ -107,8 +107,12 @@ done
 #
 #cd ..
 
+root_dir_final_size=$(du -s "$test_root_dir" | cut -f 1)
+
+
 echo "/etc folder size: $ref_etc_size"
 echo "Initial root_dir size: $root_dir_initial_size"
+echo "Final root_dir size: $root_dir_final_size"
 echo "$root_dir_size_table" | column -s ',' -t
 
 sleep 1
