@@ -8,8 +8,8 @@ root_dir="root_dir"
 # cleaning
 rm -rf rootdir/*
 cd ..
-make clean
-make
+make clean 2> /dev/null > /dev/null
+make 2> /dev/null > /dev/null
 cd example
 
 
@@ -22,14 +22,6 @@ mkdir -p "$test_root_dir"
 
 # reference workspace
 ref_ws="$(mktemp -d -p .)"
-ok_stdout="$ref_ws/ok_stdout"
-ok_stderr="$ref_ws/ok_stderr"
-test_stdout="$ref_ws/test_stdout"
-test_stderr="$ref_ws/test_stderr"
-mkfifo "$ok_stdout"
-mkfifo "$ok_stderr"
-mkfifo "$test_stdout"
-mkfifo "$test_stderr"
 
 ref_mount_dir="$ref_ws/$mount_dir"
 mkdir -p "$ref_mount_dir"
@@ -37,15 +29,37 @@ mkdir -p "$ref_mount_dir"
 ref_etc="$ref_ws/etc"
 cp -a /etc "$ref_etc" > /dev/null 2> /dev/null
 
-#../src/bbfs -s rootdir/ mountdir/
-#
-#cd mountdir/
-#
-#
-#du -sh ../etc/
-#du -sh ../rootdir/
-#read l
-#
+
+"$fs_bin" -s "$test_root_dir" "$test_mount_dir"
+
+
+ref_etc_size=$(du -s "$ref_etc" | cut -f 1)
+root_dir_initial_size=$(du -s "$test_root_dir" | cut -f 1)
+
+
+function run_ref_test {
+  id="$1"
+  shift
+  ref_cmd=""
+  test_cmd=""
+  for p in "$@"; do
+    ref_cmd="$ref_cmd ${p//__mount_dir__/$ref_mount_dir}"
+    test_cmd="$test_cmd ${p//__mount_dir__/$test_mount_dir}"
+  done
+  #cd
+  $ref_cmd > "$ref_ws/$id.stdout" 2> "$ref_ws/$id.stderr"
+  #cd
+  $test_cmd > "$test_ws/$id.stdout" 2> "$test_ws/$id.stderr"
+  # diff
+}
+
+
+#id="0"
+#cp -a "$ref_etc" "$ref_mount_dir/etc$id" > "$ref_ws/etc$id.stdout" 2> "$ref_ws/etc$id.stderr"
+#cp -a "$ref_etc" "$test_mount_dir/etc$id" > "$test_ws/etc$id.stdout" 2> "$test_ws/etc$id.stderr"
+
+run_ref_test "etc0" cp -a "$ref_etc" "__mount_dir__/etc0"
+
 #cp -a ../etc/ etc1
 #diff -r ../etc/ etc1/
 #du -sh ../rootdir/
@@ -75,7 +89,8 @@ cp -a /etc "$ref_etc" > /dev/null 2> /dev/null
 #read l
 #
 #cd ..
-#fusermount -u mountdir
+sleep 1
+fusermount -u "$test_mount_dir"
 
-rm -rf "$test_ws"
-rm -rf "$ref_ws"
+#rm -rf "$test_ws"
+#rm -rf "$ref_ws"
