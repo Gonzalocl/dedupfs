@@ -1,10 +1,10 @@
 #!/bin/bash
 
+rm -rf rootdir/*
 cd ..
 make clean
 make
 cd example
-rm -rf rootdir/*
 ../src/bbfs -s rootdir/ mountdir/
 
 cd mountdir/
