@@ -12,7 +12,7 @@ for i in $(seq 1 10) ; do
     echo $i
     dd if=/dev/urandom of=mountdir/$i bs=1 count=$i
 done
- ls -l mountdir
+ls -l mountdir
 
 fusermount -u mountdir
 
