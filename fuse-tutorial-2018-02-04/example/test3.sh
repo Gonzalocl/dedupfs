@@ -81,12 +81,16 @@ function run_ref_test {
 
 ws_remake
 
+# common workspace
+com_ws="$(mktemp -d -p . 'tmp.com.XXXX')"
+com_ws="$(realpath $com_ws)"
+
 # test workspace
 test_ws="$(mktemp -d -p . 'tmp.test.XXXX')"
 test_ws="$(realpath $test_ws)"
 
 test_mount_dir="$test_ws/$mount_dir"
-test_root_dir="$test_ws/$root_dir"
+test_root_dir="$com_ws/$root_dir"
 mkdir -p "$test_mount_dir"
 mkdir -p "$test_root_dir"
 
@@ -96,10 +100,6 @@ ref_ws="$(realpath $ref_ws)"
 
 ref_mount_dir="$ref_ws/$mount_dir"
 mkdir -p "$ref_mount_dir"
-
-# common workspace
-com_ws="$(mktemp -d -p . 'tmp.com.XXXX')"
-com_ws="$(realpath $com_ws)"
 
 fs_mount "$test_root_dir" "$test_mount_dir" -s
 
@@ -111,7 +111,7 @@ echo CC > "$com_ws/c"
 
 run_ref_test cp "$com_ws/a" "$com_ws/b" "$com_ws/c" "$mount_dir"
 run_ref_test ls -la "$mount_dir"
-read l
+
 
 # test make a copy of /etc
 #ref_etc="$ref_ws/etc"
