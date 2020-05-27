@@ -97,15 +97,28 @@ ref_ws="$(realpath $ref_ws)"
 ref_mount_dir="$ref_ws/$mount_dir"
 mkdir -p "$ref_mount_dir"
 
+# common workspace
+com_ws="$(mktemp -d -p . 'tmp.com.XXXX')"
+com_ws="$(realpath $com_ws)"
+
 fs_mount "$test_root_dir" "$test_mount_dir" -s
 
 
-# make a copy of /etc test
-ref_etc="$ref_ws/etc"
-cp -a /etc "$ref_etc" > /dev/null 2> /dev/null
+# test copy regular file with different permissions
+echo AA > "$com_ws/a"
+echo BB > "$com_ws/b"
+echo CC > "$com_ws/c"
 
-run_ref_test cp -a "$ref_etc" "$mount_dir"
-run_ref_test diff -r "$ref_etc" "$mount_dir/etc"
+run_ref_test cp "$com_ws/a" "$com_ws/b" "$com_ws/c" "$mount_dir"
+run_ref_test ls -la "$mount_dir"
+read l
+
+# test make a copy of /etc
+#ref_etc="$ref_ws/etc"
+#cp -a /etc "$ref_etc" > /dev/null 2> /dev/null
+#
+#run_ref_test cp -a "$ref_etc" "$mount_dir"
+#run_ref_test diff -r "$ref_etc" "$mount_dir/etc"
 
 
 sleep 1
@@ -113,5 +126,6 @@ fs_umount "$test_mount_dir"
 
 rm -rf "$test_ws"
 rm -rf "$ref_ws"
+rm -rf "$com_ws"
 
 echo -e "$result_all"
