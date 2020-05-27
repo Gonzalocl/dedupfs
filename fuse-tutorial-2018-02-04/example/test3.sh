@@ -1,5 +1,9 @@
 #!/bin/bash
 
+color_log="\e[32m"
+color_err="\e[31m"
+color_reset="\e[0m"
+result_all="########################### ALL TESTS ###############################"
 
 mount_dir="mount_dir"
 root_dir="root_dir"
@@ -48,12 +52,15 @@ function run_ref_test {
   cd "$test_ws"
   "$@" > "$test_ws/$id.stdout" 2> "$test_ws/$id.stderr"
 
+  result="${color_log}OK:   "
+
   diff_stdout="$(diff $ref_ws/$id.stdout $test_ws/$id.stdout)"
   if [[ $diff_stdout != "" ]]; then
     echo "########################### STDOUT ###############################"
     echo "$diff_stdout"
     echo "########################### STDOUT ###############################"
     echo
+    result="${color_err}FAIL: "
   fi
 
   diff_stderr="$(diff $ref_ws/$id.stderr $test_ws/$id.stderr)"
@@ -62,7 +69,13 @@ function run_ref_test {
     echo "$diff_stderr"
     echo "########################### STDERR ###############################"
     echo
+    result="${color_err}FAIL: "
   fi
+
+  result="${result}${@}${color_reset}"
+  result_all="$result_all\n$result"
+  echo -e "$result"
+
 }
 
 
@@ -100,3 +113,5 @@ fs_umount "$test_mount_dir"
 
 rm -rf "$test_ws"
 rm -rf "$ref_ws"
+
+echo -e "$result_all"
