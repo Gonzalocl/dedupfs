@@ -3,7 +3,7 @@
 color_log="\e[32m"
 color_err="\e[31m"
 color_reset="\e[0m"
-result_all="########################### ALL TESTS ###############################"
+result_all="\n\n########################### ALL TESTS ###############################"
 
 mount_dir="mount_dir"
 root_dir="root_dir"
@@ -52,6 +52,8 @@ function run_ref_test {
   cd "$test_ws"
   "$@" > "$test_ws/$id.stdout" 2> "$test_ws/$id.stderr"
 
+  cd "$work_dir"
+
   result="${color_log}OK:   "
 
   diff_stdout="$(diff $ref_ws/$id.stdout $test_ws/$id.stdout)"
@@ -99,7 +101,7 @@ ref_ws="$(mktemp -d -p . 'tmp.ref.XXXX')"
 ref_ws="$(realpath $ref_ws)"
 
 ref_mount_dir="$ref_ws/$mount_dir"
-mkdir -p "$ref_mount_dir"
+mkdir -p -m 755 "$ref_mount_dir"
 
 fs_mount "$test_root_dir" "$test_mount_dir" -s
 
@@ -110,8 +112,24 @@ echo BB > "$com_ws/b"
 echo CC > "$com_ws/c"
 
 run_ref_test cp "$com_ws/a" "$com_ws/b" "$com_ws/c" "$mount_dir"
+run_ref_test find "$mount_dir"
 run_ref_test ls -la "$mount_dir"
 
+run_ref_test rm "$mount_dir/a" "$mount_dir/b" "$mount_dir/c" $mount_dir
+run_ref_test find "$mount_dir"
+run_ref_test ls -la "$mount_dir"
+
+chmod 777 "$com_ws/a"
+chmod 444 "$com_ws/b"
+chmod 000 "$com_ws/c"
+
+run_ref_test cp "$com_ws/a" "$com_ws/b" "$com_ws/c" "$mount_dir"
+run_ref_test find "$mount_dir"
+run_ref_test ls -la "$mount_dir"
+
+run_ref_test rm -f "$mount_dir/a" "$mount_dir/b" "$mount_dir/c" $mount_dir
+run_ref_test find "$mount_dir"
+run_ref_test ls -la "$mount_dir"
 
 # test make a copy of /etc
 #ref_etc="$ref_ws/etc"
