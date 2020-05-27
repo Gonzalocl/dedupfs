@@ -40,7 +40,6 @@ function ws_remake {
 # $@: command
 function run_ref_test {
   # TODO tmp folder for output and remove at the end
-  # TODO show only if difference
   id="$RANDOM"
 
   cd "$ref_ws"
@@ -49,13 +48,21 @@ function run_ref_test {
   cd "$test_ws"
   "$@" > "$test_ws/$id.stdout" 2> "$test_ws/$id.stderr"
 
-  echo "########################### STDOUT ###############################"
-  diff "$ref_ws/$id.stdout" "$test_ws/$id.stdout"
-  echo
+  diff_stdout="$(diff $ref_ws/$id.stdout $test_ws/$id.stdout)"
+  if [[ $diff_stdout != "" ]]; then
+    echo "########################### STDOUT ###############################"
+    echo "$diff_stdout"
+    echo "########################### STDOUT ###############################"
+    echo
+  fi
 
-  echo "########################### STDERR ###############################"
-  diff "$ref_ws/$id.stderr" "$test_ws/$id.stderr"
-  echo; echo; echo
+  diff_stderr="$(diff $ref_ws/$id.stderr $test_ws/$id.stderr)"
+  if [[ $diff_stderr != "" ]]; then
+    echo "########################### STDERR ###############################"
+    echo "$diff_stderr"
+    echo "########################### STDERR ###############################"
+    echo
+  fi
 }
 
 
