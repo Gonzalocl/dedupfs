@@ -85,8 +85,8 @@ fs_mount "$test_root_dir" "$test_mount_dir" -s
 
 
 run_ref_test cp -a "$ref_etc" "$mount_dir"
-echo done
-read l
+run_ref_test diff -r "$ref_etc" "$mount_dir/etc"
+
 
 sleep 1
 fs_umount "$test_mount_dir"
