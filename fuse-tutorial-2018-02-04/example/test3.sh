@@ -22,7 +22,7 @@ function fs_umount {
   fusermount -u "$1"
 }
 
-# clean workspace and build
+# clean workspace and build.
 function ws_remake {
   rm -rf rootdir/*
   cd ..
@@ -30,6 +30,34 @@ function ws_remake {
   make 2> /dev/null > /dev/null
   cd example
 }
+
+
+# Run command on reference workspace and test workspace and show
+# differences in stdout and stderr.
+# Relative paths are relative to $ref_ws when run on reference
+# workspace and relative to $test_ws when run on test workspace.
+# Absolute paths are absolute.
+# $@: command
+function run_ref_test {
+  # TODO tmp folder for output and remove at the end
+  # TODO show only if difference
+  id="$RANDOM"
+
+  cd "$ref_ws"
+  "$@" > "$ref_ws/$id.stdout" 2> "$ref_ws/$id.stderr"
+
+  cd "$test_ws"
+  "$@" > "$test_ws/$id.stdout" 2> "$test_ws/$id.stderr"
+
+  echo "########################### STDOUT ###############################"
+  diff "$ref_ws/$id.stdout" "$test_ws/$id.stdout"
+  echo
+
+  echo "########################### STDERR ###############################"
+  diff "$ref_ws/$id.stderr" "$test_ws/$id.stderr"
+  echo; echo; echo
+}
+
 
 ws_remake
 
@@ -49,14 +77,16 @@ ref_ws="$(realpath $ref_ws)"
 ref_mount_dir="$ref_ws/$mount_dir"
 mkdir -p "$ref_mount_dir"
 
+# make a copy of /etc
 ref_etc="$ref_ws/etc"
 cp -a /etc "$ref_etc" > /dev/null 2> /dev/null
 
 fs_mount "$test_root_dir" "$test_mount_dir" -s
 
 
-
-
+run_ref_test cp -a "$ref_etc" "$mount_dir"
+echo done
+read l
 
 sleep 1
 fs_umount "$test_mount_dir"
