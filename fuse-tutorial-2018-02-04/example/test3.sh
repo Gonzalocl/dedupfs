@@ -106,16 +106,22 @@ mkdir -p -m 755 "$ref_mount_dir"
 fs_mount "$test_root_dir" "$test_mount_dir" -s
 
 
+shopt -s globstar
 # test copy regular file with different permissions
 echo AA > "$com_ws/a"
 echo BB > "$com_ws/b"
 echo CC > "$com_ws/c"
 
-run_ref_test cp "$com_ws/a" "$com_ws/b" "$com_ws/c" "$mount_dir"
+run_ref_test cp "$com_ws/a" "$mount_dir"
+run_ref_test cp "$com_ws/b" "$mount_dir"
+run_ref_test cp "$com_ws/c" "$mount_dir"
 run_ref_test find "$mount_dir"
 run_ref_test ls -la "$mount_dir"
+run_ref_test hexdump -C "$mount_dir"/**/*
 
-run_ref_test rm "$mount_dir/a" "$mount_dir/b" "$mount_dir/c" $mount_dir
+run_ref_test rm -f "$mount_dir/a"
+run_ref_test rm -f "$mount_dir/b"
+run_ref_test rm -f "$mount_dir/c"
 run_ref_test find "$mount_dir"
 run_ref_test ls -la "$mount_dir"
 
@@ -123,21 +129,30 @@ chmod 777 "$com_ws/a"
 chmod 444 "$com_ws/b"
 chmod 000 "$com_ws/c"
 
-run_ref_test cp "$com_ws/a" "$com_ws/b" "$com_ws/c" "$mount_dir"
+run_ref_test cp "$com_ws/a" "$mount_dir"
+run_ref_test cp "$com_ws/b" "$mount_dir"
+run_ref_test cp "$com_ws/c" "$mount_dir"
 run_ref_test find "$mount_dir"
 run_ref_test ls -la "$mount_dir"
+run_ref_test hexdump -C "$mount_dir"/**/*
 
-run_ref_test rm -f "$mount_dir/a" "$mount_dir/b" "$mount_dir/c" $mount_dir
+run_ref_test rm -f "$mount_dir/a"
+run_ref_test rm -f "$mount_dir/b"
+run_ref_test rm -f "$mount_dir/c"
 run_ref_test find "$mount_dir"
 run_ref_test ls -la "$mount_dir"
 
 # test make a copy of /etc
-#ref_etc="$ref_ws/etc"
+#ref_etc="$com_ws/etc"
 #cp -a /etc "$ref_etc" > /dev/null 2> /dev/null
 #
 #run_ref_test cp -a "$ref_etc" "$mount_dir"
+#run_ref_test find "$mount_dir"
+#run_ref_test ls -la "$mount_dir/etc"
+#run_ref_test ls -la "$mount_dir/etc/machine-id"
 #run_ref_test diff -r "$ref_etc" "$mount_dir/etc"
-
+#
+#read l
 
 sleep 1
 fs_umount "$test_mount_dir"
