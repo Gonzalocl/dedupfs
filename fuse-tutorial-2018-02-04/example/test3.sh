@@ -113,6 +113,7 @@ fs_mount "$test_root_dir" "$test_mount_dir" -s
 echo AA > "$com_ws/a"
 echo BB > "$com_ws/b"
 echo CC > "$com_ws/c"
+echo DDDDDDDDDDDDDDDDDDDD > "$com_ws/d"
 
 run_ref_test "cp $com_ws/a $mount_dir"
 run_ref_test "cp $com_ws/b $mount_dir"
@@ -138,6 +139,13 @@ run_ref_test "find $mount_dir"
 run_ref_test "ls -la $mount_dir"
 run_ref_test "shopt -s globstar; for i in $mount_dir/**/*; do hexdump -C \$i; done"
 
+run_ref_test "dd if=$com_ws/d of=$mount_dir/a status=noxfer"
+run_ref_test "dd if=$com_ws/d of=$mount_dir/b status=noxfer"
+run_ref_test "dd if=$com_ws/d of=$mount_dir/c status=noxfer"
+run_ref_test "find $mount_dir"
+run_ref_test "ls -la $mount_dir"
+run_ref_test "shopt -s globstar; for i in $mount_dir/**/*; do hexdump -C \$i; done"
+
 run_ref_test "rm -f $mount_dir/a"
 run_ref_test "rm -f $mount_dir/b"
 run_ref_test "rm -f $mount_dir/c"
@@ -159,6 +167,8 @@ run_ref_test "shopt -s globstar; for i in $mount_dir/**/*; do hexdump -C \$i; do
 echo -e "$result_all"
 echo "ENTER to clean"
 read l
+#tail -n +1 tmp.test.*/0* | less
+#tail -n +1 tmp.ref.*/0* | less
 
 fs_umount "$test_mount_dir"
 
