@@ -43,17 +43,17 @@ function ws_remake {
 # Relative paths are relative to $ref_ws when run on reference
 # workspace and relative to $test_ws when run on test workspace.
 # Absolute paths are absolute.
-# $@: command
+# $1: command string, ", $, ` and \ need double escape
 function run_ref_test {
   # TODO tmp folder for output and remove at the end
-  id="$(printf %05d $test_count)_$(echo $@ | tr -d -c [:alnum:])"
+  id="$(printf %05d $test_count)_$(echo $1 | tr -d -c [:alnum:])"
   ((test_count++))
 
   cd "$ref_ws"
-  "$@" > "$ref_ws/$id.stdout" 2> "$ref_ws/$id.stderr"
+  bash -c "$1" > "$ref_ws/$id.stdout" 2> "$ref_ws/$id.stderr"
 
   cd "$test_ws"
-  "$@" > "$test_ws/$id.stdout" 2> "$test_ws/$id.stderr"
+  bash -c "$1" > "$test_ws/$id.stdout" 2> "$test_ws/$id.stderr"
 
   cd "$work_dir"
 
@@ -114,35 +114,35 @@ echo AA > "$com_ws/a"
 echo BB > "$com_ws/b"
 echo CC > "$com_ws/c"
 
-run_ref_test cp "$com_ws/a" "$mount_dir"
-run_ref_test cp "$com_ws/b" "$mount_dir"
-run_ref_test cp "$com_ws/c" "$mount_dir"
-run_ref_test find "$mount_dir"
-run_ref_test ls -la "$mount_dir"
-run_ref_test hexdump -C "$mount_dir"/**/*
+run_ref_test "cp $com_ws/a $mount_dir"
+run_ref_test "cp $com_ws/b $mount_dir"
+run_ref_test "cp $com_ws/c $mount_dir"
+run_ref_test "find $mount_dir"
+run_ref_test "ls -la $mount_dir"
+run_ref_test "shopt -s globstar; hexdump -C $mount_dir/**/*"
 
-run_ref_test rm -f "$mount_dir/a"
-run_ref_test rm -f "$mount_dir/b"
-run_ref_test rm -f "$mount_dir/c"
-run_ref_test find "$mount_dir"
-run_ref_test ls -la "$mount_dir"
+run_ref_test "rm -f $mount_dir/a"
+run_ref_test "rm -f $mount_dir/b"
+run_ref_test "rm -f $mount_dir/c"
+run_ref_test "find $mount_dir"
+run_ref_test "ls -la $mount_dir"
 
 chmod 777 "$com_ws/a"
 chmod 444 "$com_ws/b"
 chmod 000 "$com_ws/c"
 
-run_ref_test cp "$com_ws/a" "$mount_dir"
-run_ref_test cp "$com_ws/b" "$mount_dir"
-run_ref_test cp "$com_ws/c" "$mount_dir"
-run_ref_test find "$mount_dir"
-run_ref_test ls -la "$mount_dir"
-run_ref_test hexdump -C "$mount_dir"/**/*
+run_ref_test "cp $com_ws/a $mount_dir"
+run_ref_test "cp $com_ws/b $mount_dir"
+run_ref_test "cp $com_ws/c $mount_dir"
+run_ref_test "find $mount_dir"
+run_ref_test "ls -la $mount_dir"
+run_ref_test "shopt -s globstar; hexdump -C $mount_dir/**/*"
 
-run_ref_test rm -f "$mount_dir/a"
-run_ref_test rm -f "$mount_dir/b"
-run_ref_test rm -f "$mount_dir/c"
-run_ref_test find "$mount_dir"
-run_ref_test ls -la "$mount_dir"
+run_ref_test "rm -f $mount_dir/a"
+run_ref_test "rm -f $mount_dir/b"
+run_ref_test "rm -f $mount_dir/c"
+run_ref_test "find $mount_dir"
+run_ref_test "ls -la $mount_dir"
 
 # test make a copy of /etc
 #ref_etc="$com_ws/etc"
