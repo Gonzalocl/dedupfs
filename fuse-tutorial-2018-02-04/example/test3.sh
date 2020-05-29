@@ -9,6 +9,8 @@ mount_dir="mount_dir"
 root_dir="root_dir"
 work_dir="$(pwd)"
 
+test_count=0
+
 # $1: root_dir
 # $2: mount_dir
 # $3: (optional) -s
@@ -44,7 +46,8 @@ function ws_remake {
 # $@: command
 function run_ref_test {
   # TODO tmp folder for output and remove at the end
-  id="$RANDOM"
+  id="$(printf %05d $test_count)_$(echo $@ | tr -d -c [:alnum:])"
+  ((test_count++))
 
   cd "$ref_ws"
   "$@" > "$ref_ws/$id.stdout" 2> "$ref_ws/$id.stderr"
@@ -106,7 +109,6 @@ mkdir -p -m 755 "$ref_mount_dir"
 fs_mount "$test_root_dir" "$test_mount_dir" -s
 
 
-shopt -s globstar
 # test copy regular file with different permissions
 echo AA > "$com_ws/a"
 echo BB > "$com_ws/b"
@@ -154,11 +156,12 @@ run_ref_test ls -la "$mount_dir"
 #
 #read l
 
-sleep 1
+echo -e "$result_all"
+echo "ENTER to clean"
+read l
+
 fs_umount "$test_mount_dir"
 
 rm -rf "$test_ws"
 rm -rf "$ref_ws"
 rm -rf "$com_ws"
-
-echo -e "$result_all"
