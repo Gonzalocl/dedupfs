@@ -325,7 +325,12 @@ int file_open(struct file_handler_conf *conf, const char *path, int flags) {
     conf->file_descriptors[fd] = malloc(sizeof(struct file_descriptor));
 
     // TODO flags?
-    if ((conf->file_descriptors[fd]->index_fd = open(full_path, O_RDWR)) == -1) {
+    if ((flags & O_ACCMODE) == O_WRONLY) {
+        flags = flags & ~O_WRONLY;
+        flags = flags | O_RDWR;
+    }
+
+    if ((conf->file_descriptors[fd]->index_fd = open(full_path, flags)) == -1) {
         free(conf->file_descriptors[fd]);
         conf->file_descriptors[fd] = NULL;
         return -errno;

@@ -23,10 +23,14 @@
 // maintain bbfs state in here
 #include <limits.h>
 #include <stdio.h>
+#include <sys/types.h>
 struct bb_state {
     FILE *logfile;
     char *rootdir;
     struct file_handler_conf *file_handler;
+    char file_permissions_path[PATH_MAX];
+    mode_t file_permissions_mode;
+    pid_t file_permissions_pid;
 };
 #define BB_DATA ((struct bb_state *) fuse_get_context()->private_data)
 

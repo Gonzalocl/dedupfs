@@ -131,6 +131,16 @@ int bb_mknod(const char *path, mode_t mode, dev_t dev)
     int retstat;
     char fpath[PATH_MAX];
 
+    if (strlen(BB_DATA->file_permissions_path) != 0) {
+        bb_fullpath(fpath, BB_DATA->file_permissions_path);
+        chmod(fpath, BB_DATA->file_permissions_mode);
+        log_msg("GOO:%s:%s:%d\n", __FILE__, __func__, __LINE__);
+    }
+
+    strncpy(BB_DATA->file_permissions_path, path, PATH_MAX);
+    BB_DATA->file_permissions_mode = mode;
+    BB_DATA->file_permissions_pid = fuse_get_context()->pid;
+
     log_msg("\nbb_mknod(path=\"%s\", mode=0%3o, dev=%lld)\n",
             path, mode, dev);
     bb_fullpath(fpath, path);
@@ -142,7 +152,7 @@ int bb_mknod(const char *path, mode_t mode, dev_t dev)
     // that.
     if (S_ISREG(mode)) {
 //        retstat = log_syscall("open", open(fpath, O_CREAT | O_EXCL | O_WRONLY, mode), 0);
-        retstat = log_syscall("open", file_mknod(BB_DATA->file_handler, path, mode), 0);
+        retstat = log_syscall("open", file_mknod(BB_DATA->file_handler, path, mode | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH), 0);
 //        if (retstat >= 0)
 //            retstat = log_syscall("close", close(retstat), 0);
     } else
@@ -318,6 +328,11 @@ int bb_open(const char *path, struct fuse_file_info *fi)
     fi->fh = fd;
 
     log_fi(fi);
+
+    if (strncmp(path, BB_DATA->file_permissions_path, PATH_MAX) == 0 && fuse_get_context()->pid == BB_DATA->file_permissions_pid) {
+        chmod(fpath, BB_DATA->file_permissions_mode);
+        BB_DATA->file_permissions_path[0] = '\0';
+    }
 
     return retstat;
 }
@@ -959,6 +974,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "ERROR:%s:%d file_handler_init: %d\n", __FILE__, __LINE__, ret);
         return EXIT_FAILURE;
     }
+
+    bb_data->file_permissions_path[0] = '\0';
 
     // turn over control to fuse
     fprintf(stderr, "about to call fuse_main\n");
