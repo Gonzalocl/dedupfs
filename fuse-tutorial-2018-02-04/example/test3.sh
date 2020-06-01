@@ -33,7 +33,7 @@ function ws_remake {
   rm -rf rootdir/*
   cd ..
   make clean 2> /dev/null > /dev/null
-  make 2> /dev/null > /dev/null
+  make 2> /dev/null > /dev/null || ( echo -e "${color_err}Compilation error${color_reset}" && exit 1 ) || exit
   cd example
 }
 
