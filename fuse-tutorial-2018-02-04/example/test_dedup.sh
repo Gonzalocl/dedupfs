@@ -83,6 +83,9 @@ function run_ref_test {
 
 }
 
+function f_div {
+  python -c "print('%.2f' % ($1/$2)) if $2 else print('inf')"
+}
 
 ws_remake
 
@@ -108,8 +111,48 @@ mkdir -p -m 755 "$ref_mount_dir"
 
 fs_mount "$test_root_dir" "$test_mount_dir" -s
 
+steps=10
+# test dedup average case /etc
+ref_etc="$com_ws/etc"
+cp -a /etc "$ref_etc" > /dev/null 2> /dev/null
+
+ref_etc_size=$(du -s "$ref_etc" | cut -f 1)
+root_dir_initial_size=$(du -s "$test_root_dir" | cut -f 1)
+root_dir_size_table="etc copies,root dir size,root dir increase,root dir ratio relative to reference etc"
+
+last_root_dir_size="$root_dir_initial_size"
+for i in $(seq 1 $steps); do
+  run_ref_test "cp -a $ref_etc $mount_dir/etc$i"
+  run_ref_test "diff -r $ref_etc $mount_dir/etc$i"
+
+  root_dir_size=$(du -s "$test_root_dir" | cut -f 1)
+  increase="$(f_div $root_dir_size $last_root_dir_size)"
+  ratio="$(f_div $root_dir_size $((ref_etc_size*i)))"
+  root_dir_size_table="$root_dir_size_table\n$i,$root_dir_size,$increase,$ratio"
+
+  last_root_dir_size="$root_dir_size"
+done
+
+for i in $(seq $steps -1 1); do
+  run_ref_test "rm -rf $mount_dir/etc$i"
+  run_ref_test "diff -r $ref_etc $mount_dir"
+
+  etc_folders="$((i-1))"
+  root_dir_size=$(du -s "$test_root_dir" | cut -f 1)
+  increase="$(f_div $root_dir_size $last_root_dir_size)"
+  ratio="$(f_div $root_dir_size $((ref_etc_size*etc_folders)))"
+  root_dir_size_table="$root_dir_size_table\n$etc_folders,$root_dir_size,$increase,$ratio"
+
+  last_root_dir_size="$root_dir_size"
+done
+
+root_dir_final_size=$(du -s "$test_root_dir" | cut -f 1)
 
 echo -e "$result_all"
+echo "/etc folder size: $ref_etc_size"
+echo "Initial root_dir size: $root_dir_initial_size"
+echo "Final root_dir size: $root_dir_final_size"
+echo -e "$root_dir_size_table" | column -s ',' -t
 echo "ENTER to clean"
 read l
 #tail -n +1 tmp.test.*/0* | less
