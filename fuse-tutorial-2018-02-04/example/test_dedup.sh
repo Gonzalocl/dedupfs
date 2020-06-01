@@ -146,6 +146,35 @@ for i in $(seq $steps -1 1); do
   last_root_dir_size="$root_dir_size"
 done
 
+# test dedup best case
+dd if=/dev/zero of="$com_ws/zero" bs=4096 count=25600
+root_dir_size_table_best="100MB zero file copies,root dir size,root dir increase,root dir ratio relative to reference zero file"
+ref_etc_size=$(du -sb "$com_ws/zero" | cut -f 1)
+for i in $(seq 1 $steps); do
+  run_ref_test "cp $com_ws/zero $mount_dir/zero$i"
+  run_ref_test "diff -r $com_ws/zero $mount_dir/zero$i"
+
+  root_dir_size=$(du -sb "$test_root_dir" | cut -f 1)
+  increase="$(f_div $root_dir_size $last_root_dir_size)"
+  ratio="$(f_div $root_dir_size $((ref_etc_size*i)))"
+  root_dir_size_table_best="$root_dir_size_table_best\n$i,$root_dir_size,$increase,$ratio"
+
+  last_root_dir_size="$root_dir_size"
+done
+
+for i in $(seq $steps -1 1); do
+  run_ref_test "rm -rf $mount_dir/zero$i"
+  run_ref_test "diff -r $com_ws/zero $mount_dir"
+
+  etc_folders="$((i-1))"
+  root_dir_size=$(du -sb "$test_root_dir" | cut -f 1)
+  increase="$(f_div $root_dir_size $last_root_dir_size)"
+  ratio="$(f_div $root_dir_size $((ref_etc_size*etc_folders)))"
+  root_dir_size_table_best="$root_dir_size_table_best\n$etc_folders,$root_dir_size,$increase,$ratio"
+
+  last_root_dir_size="$root_dir_size"
+done
+
 root_dir_final_size=$(du -sb "$test_root_dir" | cut -f 1)
 
 echo -e "$result_all"
@@ -154,6 +183,8 @@ echo "Final root_dir size: $root_dir_final_size"
 echo "Reference etc folder size: $ref_etc_size"
 echo "Average dedup test results"
 echo -e "$root_dir_size_table" | column -s ',' -t
+echo "Best dedup test results"
+echo -e "$root_dir_size_table_best" | column -s ',' -t
 echo "ENTER to clean"
 read l
 #tail -n +1 tmp.test.*/0* | less
