@@ -20,6 +20,8 @@
 // setlinebuf() later in consequence.
 #define _XOPEN_SOURCE 500
 
+#define _POSIX_C_SOURCE 200809L
+
 // maintain bbfs state in here
 #include <limits.h>
 #include <stdio.h>

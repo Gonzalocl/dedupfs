@@ -37,6 +37,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 
 #ifdef HAVE_SYS_XATTR_H
 #include <sys/xattr.h>
@@ -294,7 +295,14 @@ int bb_utime(const char *path, struct utimbuf *ubuf)
             path, ubuf);
     bb_fullpath(fpath, path);
 
-    return log_syscall("utime", utime(fpath, ubuf), 0);
+    struct timespec times[2];
+    times[0].tv_sec = ubuf->actime;
+    times[0].tv_nsec = 0;
+    times[1].tv_sec = ubuf->modtime;
+    times[1].tv_nsec = 0;
+
+//    return log_syscall("utime", utime(fpath, ubuf), 0);
+    return log_syscall("utime", utimensat(0, fpath, times, AT_SYMLINK_NOFOLLOW), 0);
 }
 
 /** File open operation
