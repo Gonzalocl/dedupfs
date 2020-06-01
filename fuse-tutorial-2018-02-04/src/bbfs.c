@@ -269,7 +269,7 @@ int bb_chown(const char *path, uid_t uid, gid_t gid)
             path, uid, gid);
     bb_fullpath(fpath, path);
 
-    return log_syscall("chown", chown(fpath, uid, gid), 0);
+    return log_syscall("chown", lchown(fpath, uid, gid), 0);
 }
 
 /** Change the size of a file */
