@@ -146,14 +146,18 @@ done
 
 # test dedup best case
 dd if=/dev/zero of="$com_ws/zero" bs=4096 count=25600
+
+ref_zero_file_size=$(du -sb "$com_ws/zero" | cut -f 1)
+root_dir_initial_size_best=$(du -sb "$test_root_dir" | cut -f 1)
 root_dir_size_table_best="100MB zero file copies,root dir size,root dir increase,root dir ratio relative to reference zero file"
-ref_etc_size=$(du -sb "$com_ws/zero" | cut -f 1)
+
+last_root_dir_size="$root_dir_initial_size_best"
 for i in $(seq 1 $steps); do
   run_ref_test "cp $com_ws/zero $mount_dir/zero$i"
 
   root_dir_size=$(du -sb "$test_root_dir" | cut -f 1)
   increase="$(f_div $root_dir_size $last_root_dir_size)"
-  ratio="$(f_div $root_dir_size $((ref_etc_size*i)))"
+  ratio="$(f_div $root_dir_size $((ref_zero_file_size*i)))"
   root_dir_size_table_best="$root_dir_size_table_best\n$i,$root_dir_size,$increase,$ratio"
 
   last_root_dir_size="$root_dir_size"
@@ -165,7 +169,7 @@ for i in $(seq $steps -1 1); do
   etc_folders="$((i-1))"
   root_dir_size=$(du -sb "$test_root_dir" | cut -f 1)
   increase="$(f_div $root_dir_size $last_root_dir_size)"
-  ratio="$(f_div $root_dir_size $((ref_etc_size*etc_folders)))"
+  ratio="$(f_div $root_dir_size $((ref_zero_file_size*etc_folders)))"
   root_dir_size_table_best="$root_dir_size_table_best\n$etc_folders,$root_dir_size,$increase,$ratio"
 
   last_root_dir_size="$root_dir_size"
@@ -174,13 +178,19 @@ done
 root_dir_final_size=$(du -sb "$test_root_dir" | cut -f 1)
 
 echo -e "$result_all"
-echo "Initial root_dir size: $root_dir_initial_size"
-echo "Final root_dir size: $root_dir_final_size"
-echo "Reference etc folder size: $ref_etc_size"
+echo
 echo "Average dedup test results"
+echo "Initial root_dir size: $root_dir_initial_size"
+echo "Reference etc folder size: $ref_etc_size"
 echo -e "$root_dir_size_table" | column -s ',' -t
+echo
 echo "Best dedup test results"
+echo "Initial root_dir size: $root_dir_initial_size_best"
+echo "Reference zero file size: $ref_zero_file_size"
 echo -e "$root_dir_size_table_best" | column -s ',' -t
+echo
+echo "Final root_dir size: $root_dir_final_size"
+echo
 echo "ENTER to clean"
 read l
 #tail -n +1 tmp.test.*/0* | less
