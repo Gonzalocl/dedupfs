@@ -123,7 +123,6 @@ root_dir_size_table="etc copies,root dir size,root dir increase,root dir ratio r
 last_root_dir_size="$root_dir_initial_size"
 for i in $(seq 1 $steps); do
   run_ref_test "cp -a $ref_etc $mount_dir/etc$i"
-  run_ref_test "diff -r $ref_etc $mount_dir/etc$i"
 
   root_dir_size=$(du -sb "$test_root_dir" | cut -f 1)
   increase="$(f_div $root_dir_size $last_root_dir_size)"
@@ -151,7 +150,6 @@ root_dir_size_table_best="100MB zero file copies,root dir size,root dir increase
 ref_etc_size=$(du -sb "$com_ws/zero" | cut -f 1)
 for i in $(seq 1 $steps); do
   run_ref_test "cp $com_ws/zero $mount_dir/zero$i"
-  run_ref_test "diff -r $com_ws/zero $mount_dir"
 
   root_dir_size=$(du -sb "$test_root_dir" | cut -f 1)
   increase="$(f_div $root_dir_size $last_root_dir_size)"
