@@ -114,37 +114,31 @@ cp -a /etc "$ref_etc" > /dev/null 2> /dev/null
 
 run_ref_test "cp -a $ref_etc $mount_dir/etc0"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir/etc0 | tail -n +2"
 run_ref_test "diff -r $ref_etc $mount_dir/etc0"
 run_ref_test "shopt -s globstar; for i in $mount_dir/etc0/**/*; do hexdump -C \$i; done"
 
 run_ref_test "cp -a $ref_etc $mount_dir/etc1"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir/etc1 | tail -n +2"
 run_ref_test "diff -r $ref_etc $mount_dir/etc1"
 run_ref_test "shopt -s globstar; for i in $mount_dir/etc1/**/*; do hexdump -C \$i; done"
 
 run_ref_test "cp -a $ref_etc $mount_dir/etc2"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir/etc2 | tail -n +2"
 run_ref_test "diff -r $ref_etc $mount_dir/etc2"
 run_ref_test "shopt -s globstar; for i in $mount_dir/etc2/**/*; do hexdump -C \$i; done"
 
 run_ref_test "rm -rf $mount_dir/etc0"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir/etc2 | tail -n +2"
 run_ref_test "diff -r $ref_etc $mount_dir/etc2"
 run_ref_test "shopt -s globstar; for i in $mount_dir/etc2/**/*; do hexdump -C \$i; done"
 
 run_ref_test "rm -rf $mount_dir/etc1"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir/etc2 | tail -n +2"
 run_ref_test "diff -r $ref_etc $mount_dir/etc2"
 run_ref_test "shopt -s globstar; for i in $mount_dir/etc2/**/*; do hexdump -C \$i; done"
 
 run_ref_test "rm -rf $mount_dir/etc2"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir | tail -n +2"
 run_ref_test "diff -r $ref_etc $mount_dir"
 run_ref_test "shopt -s globstar; for i in $mount_dir/**/*; do hexdump -C \$i; done"
 
@@ -152,7 +146,6 @@ run_ref_test "shopt -s globstar; for i in $mount_dir/**/*; do hexdump -C \$i; do
 # test umount and mount
 run_ref_test "cp -a $ref_etc $mount_dir/etc0"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir/etc0 | tail -n +2"
 run_ref_test "diff -r $ref_etc $mount_dir/etc0"
 run_ref_test "shopt -s globstar; for i in $mount_dir/etc0/**/*; do hexdump -C \$i; done"
 
@@ -160,13 +153,11 @@ fs_umount "$test_mount_dir"
 fs_mount "$test_root_dir" "$test_mount_dir" -s
 
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir/etc0 | tail -n +2"
 run_ref_test "diff -r $ref_etc $mount_dir/etc0"
 run_ref_test "shopt -s globstar; for i in $mount_dir/etc0/**/*; do hexdump -C \$i; done"
 
 run_ref_test "cp -a $ref_etc $mount_dir/etc1"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir/etc1 | tail -n +2"
 run_ref_test "diff -r $ref_etc $mount_dir/etc1"
 run_ref_test "shopt -s globstar; for i in $mount_dir/etc1/**/*; do hexdump -C \$i; done"
 
@@ -174,19 +165,16 @@ fs_umount "$test_mount_dir"
 fs_mount "$test_root_dir" "$test_mount_dir" -s
 
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir | tail -n +2"
 run_ref_test "diff -r $ref_etc $mount_dir"
 run_ref_test "shopt -s globstar; for i in $mount_dir/**/*; do hexdump -C \$i; done"
 
 run_ref_test "rm -rf $mount_dir/etc0"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir | tail -n +2"
 run_ref_test "diff -r $ref_etc $mount_dir"
 run_ref_test "shopt -s globstar; for i in $mount_dir/**/*; do hexdump -C \$i; done"
 
 run_ref_test "rm -rf $mount_dir/etc1"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir | tail -n +2"
 run_ref_test "diff -r $ref_etc $mount_dir"
 run_ref_test "shopt -s globstar; for i in $mount_dir/**/*; do hexdump -C \$i; done"
 
