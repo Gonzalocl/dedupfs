@@ -1,1 +1,10 @@
 /autom4te.cache
+/html/Makefile
+/src/.deps
+/src/build.sh
+/src/config.h
+/src/Makefile
+/src/stamp-h1
+/config.log
+/config.status
+/Makefile
