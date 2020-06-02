@@ -120,6 +120,8 @@ int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *
     }
 
     if (!S_ISREG(stat_buf->st_mode)) {
+        stat_buf->st_blksize = conf->block_handler.block_size;
+        stat_buf->st_blocks = (stat_buf->st_size % stat_buf->st_blksize) == 0 ? stat_buf->st_size/stat_buf->st_blksize : stat_buf->st_size/stat_buf->st_blksize + 1;
         return ret_value;
     }
 
