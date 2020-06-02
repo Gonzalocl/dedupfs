@@ -109,6 +109,49 @@ mkdir -p -m 755 "$ref_mount_dir"
 fs_mount "$test_root_dir" "$test_mount_dir" -s
 
 
+# create a file for each possible permission
+run_ref_test "mkdir $mount_dir/t"
+#for p in $(seq 0 511); do
+for p in $(seq 0 2); do
+  permission="$(printf %03o $p)"
+  run_ref_test "echo $permission > $mount_dir/t/$permission"
+done
+
+# check correct file creation
+#run_ref_test "find $mount_dir/t -printf \"%M %g %u %s %p\\n\""
+#run_ref_test "for i in $mount_dir/t/*; do hexdump -C \$i; done"
+
+# set each file corresponding permissions
+#for p in $(seq 0 511); do
+for p in $(seq 0 2); do
+  permission="$(printf %03o $p)"
+  run_ref_test "chmod $permission $mount_dir/t/$permission"
+done
+
+# check correct permissions
+#run_ref_test "find $mount_dir/t -printf \"%M %g %u %s %p\\n\""
+
+# test read permission
+#run_ref_test "for i in $mount_dir/t/*; do hexdump -C \$i; done"
+#run_ref_test "find $mount_dir/t -printf \"%M %g %u %s %p\\n\""
+
+# test write permission
+#for p in $(seq 0 511); do
+#for p in $(seq 0 2); do
+#  permission="$(printf %03o $p)"
+#  run_ref_test "echo $permission > $mount_dir/t/$permission"
+#done
+
+# check write permission
+
+# write script to check execution permission
+# test execution permission
+
+# the same with a file with different user
+# the same with sudo
+
+
+
 echo -e "$result_all"
 echo "ENTER to clean"
 read l
