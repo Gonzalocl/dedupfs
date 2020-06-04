@@ -393,6 +393,7 @@ int file_ftruncate(struct file_handler_conf *conf, int fd, off_t new_size) {
     // TODO check errors
     int ret, ret_value = 0;
     long file_size, file_blocks, file_new_blocks;
+    // TODO block size or hash length
     unsigned char hash[conf->block_handler.block_size];
     int index_fd = conf->file_descriptors[fd]->index_fd;
 
