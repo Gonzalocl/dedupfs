@@ -331,6 +331,7 @@ int file_open(struct file_handler_conf *conf, const char *path, int flags) {
         flags = flags & ~O_WRONLY;
         flags = flags | O_RDWR;
     }
+    flags = flags & ~O_APPEND;
 
     if ((conf->file_descriptors[fd]->index_fd = open(full_path, flags)) == -1) {
         free(conf->file_descriptors[fd]);
