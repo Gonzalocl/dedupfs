@@ -162,6 +162,22 @@ run_ref_test "ls -la $mount_dir/etc | tail -n +2"
 run_ref_test "diff -r $ref_etc $mount_dir/etc"
 #run_ref_test "shopt -s globstar; for i in $mount_dir/**/*; do hexdump -C \$i; done"
 
+# test add at the end
+run_ref_test "echo a > $mount_dir/add0"
+run_ref_test "ls -la $mount_dir"
+run_ref_test "cat $mount_dir/add0"
+
+run_ref_test "echo bb >> $mount_dir/add0"
+run_ref_test "ls -la $mount_dir"
+run_ref_test "cat $mount_dir/add0"
+
+run_ref_test "echo a >> $mount_dir/add1"
+run_ref_test "ls -la $mount_dir"
+run_ref_test "cat $mount_dir/add1"
+
+run_ref_test "echo bb >> $mount_dir/add1"
+run_ref_test "ls -la $mount_dir"
+run_ref_test "cat $mount_dir/add1"
 
 echo -e "$result_all"
 echo "ENTER to clean"
