@@ -122,6 +122,8 @@ int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *
     if (!S_ISREG(stat_buf->st_mode)) {
         stat_buf->st_blksize = conf->block_handler.block_size;
         stat_buf->st_blocks = (stat_buf->st_size % stat_buf->st_blksize) == 0 ? stat_buf->st_size/stat_buf->st_blksize : stat_buf->st_size/stat_buf->st_blksize + 1;
+        stat_buf->st_blocks = (stat_buf->st_blocks*stat_buf->st_blksize)/512;
+//        stat_buf->st_blocks = (stat_buf->st_size % 512) == 0 ? stat_buf->st_size/512 : stat_buf->st_size/512 + 1;
         return ret_value;
     }
 
@@ -148,6 +150,7 @@ int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *
     // TODO ?
     stat_buf->st_blksize = conf->block_handler.block_size;
     stat_buf->st_blocks = (file_size % stat_buf->st_blksize) == 0 ? file_size/stat_buf->st_blksize : file_size/stat_buf->st_blksize + 1;
+    stat_buf->st_blocks = (stat_buf->st_blocks*stat_buf->st_blksize)/512;
 //    stat_buf->st_blksize = 512;
 //    stat_buf->st_blocks = (file_size % 512) == 0 ? file_size/512 : file_size/512 + 1;
 
@@ -477,6 +480,7 @@ int file_fgetattr(struct file_handler_conf *conf, int fd, struct stat *stat_buf)
     // TODO ?
     stat_buf->st_blksize = conf->block_handler.block_size;
     stat_buf->st_blocks = (file_size % stat_buf->st_blksize) == 0 ? file_size/stat_buf->st_blksize : file_size/stat_buf->st_blksize + 1;
+    stat_buf->st_blocks = (stat_buf->st_blocks*stat_buf->st_blksize)/512;
 //    stat_buf->st_blksize = 512;
 //    stat_buf->st_blocks = (file_size % 512) == 0 ? file_size/512 : file_size/512 + 1;
 
