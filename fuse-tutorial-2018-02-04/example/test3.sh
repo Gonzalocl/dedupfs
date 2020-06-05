@@ -106,7 +106,7 @@ ref_ws="$(realpath $ref_ws)"
 ref_mount_dir="$ref_ws/$mount_dir"
 mkdir -p -m 755 "$ref_mount_dir"
 
-fs_mount "$test_root_dir" "$test_mount_dir" -s
+fs_mount "$test_root_dir" "$test_mount_dir" -s 4096
 
 
 # test copy regular file with different permissions
@@ -119,14 +119,14 @@ run_ref_test "cp $com_ws/a $mount_dir"
 run_ref_test "cp $com_ws/b $mount_dir"
 run_ref_test "cp $com_ws/c $mount_dir"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir | tail -n +2"
+run_ref_test "ls -la $mount_dir"
 run_ref_test "shopt -s globstar; for i in $mount_dir/**/*; do hexdump -C \$i; done"
 
 run_ref_test "rm -f $mount_dir/a"
 run_ref_test "rm -f $mount_dir/b"
 run_ref_test "rm -f $mount_dir/c"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir | tail -n +2"
+run_ref_test "ls -la $mount_dir"
 
 chmod 777 "$com_ws/a"
 chmod 444 "$com_ws/b"
@@ -136,21 +136,21 @@ run_ref_test "cp $com_ws/a $mount_dir"
 run_ref_test "cp $com_ws/b $mount_dir"
 run_ref_test "cp $com_ws/c $mount_dir"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir | tail -n +2"
+run_ref_test "ls -la $mount_dir"
 run_ref_test "shopt -s globstar; for i in $mount_dir/**/*; do hexdump -C \$i; done"
 
 run_ref_test "dd if=$com_ws/d of=$mount_dir/a status=noxfer"
 run_ref_test "dd if=$com_ws/d of=$mount_dir/b status=noxfer"
 run_ref_test "dd if=$com_ws/d of=$mount_dir/c status=noxfer"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir | tail -n +2"
+run_ref_test "ls -la $mount_dir"
 run_ref_test "shopt -s globstar; for i in $mount_dir/**/*; do hexdump -C \$i; done"
 
 run_ref_test "rm -f $mount_dir/a"
 run_ref_test "rm -f $mount_dir/b"
 run_ref_test "rm -f $mount_dir/c"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir | tail -n +2"
+run_ref_test "ls -la $mount_dir"
 
 # test make a copy of /etc
 ref_etc="$com_ws/etc"
@@ -158,7 +158,7 @@ cp -a /etc "$ref_etc" > /dev/null 2> /dev/null
 
 run_ref_test "cp -a $ref_etc $mount_dir"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir/etc | tail -n +2"
+run_ref_test "ls -la $mount_dir/etc"
 run_ref_test "diff -r $ref_etc $mount_dir/etc"
 #run_ref_test "shopt -s globstar; for i in $mount_dir/**/*; do hexdump -C \$i; done"
 
