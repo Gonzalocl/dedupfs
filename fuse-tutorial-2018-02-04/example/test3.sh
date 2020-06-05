@@ -158,7 +158,7 @@ cp -a /etc "$ref_etc" > /dev/null 2> /dev/null
 
 run_ref_test "cp -a $ref_etc $mount_dir"
 run_ref_test "find $mount_dir"
-run_ref_test "ls -la $mount_dir/etc"
+run_ref_test "ls -las $mount_dir/etc"
 run_ref_test "diff -r $ref_etc $mount_dir/etc"
 #run_ref_test "shopt -s globstar; for i in $mount_dir/**/*; do hexdump -C \$i; done"
 

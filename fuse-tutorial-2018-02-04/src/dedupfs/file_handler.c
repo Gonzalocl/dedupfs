@@ -124,6 +124,9 @@ int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *
         stat_buf->st_blocks = (stat_buf->st_size % stat_buf->st_blksize) == 0 ? stat_buf->st_size/stat_buf->st_blksize : stat_buf->st_size/stat_buf->st_blksize + 1;
         stat_buf->st_blocks = (stat_buf->st_blocks*stat_buf->st_blksize)/512;
 //        stat_buf->st_blocks = (stat_buf->st_size % 512) == 0 ? stat_buf->st_size/512 : stat_buf->st_size/512 + 1;
+        if (S_ISLNK(stat_buf->st_mode)) {
+            stat_buf->st_blocks = 0;
+        }
         return ret_value;
     }
 
