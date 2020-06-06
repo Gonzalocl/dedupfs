@@ -51,12 +51,10 @@ static int next_fd(struct file_handler_conf *conf) {
     return fd;
 }
 
-// TODO
 static int check_conf(struct file_handler_conf *conf);
 static int write_conf_file(struct file_handler_conf *conf);
 static int read_conf_file(struct file_handler_conf *conf, char *blocks_path);
 
-// TODO
 int file_handler_init(struct file_handler_conf *conf) {
     if (snprintf(conf->full_files_path, PATH_MAX, "%s/%s", conf->fs_path, conf->files_path) < 0) {
         return -EIO;
@@ -82,31 +80,11 @@ int file_handler_init(struct file_handler_conf *conf) {
 
     get_hash(conf->hash_type, conf->block_handler.block_size, conf->zero_block_data, conf->zero_block_hash);
 
-    // TODO delete this at end
     block_create(conf->zero_block_hash, conf->zero_block_data);
 
     return ret_value;
-
-//    char path[PATH_MAX];
-//    int ret_value = 0;
-
-//    if (snprintf(path, PATH_MAX, "%s/%s", conf->fs_path, FILE_CONF) < 0) {
-//        return -EIO;
-//    }
-
-//    if (access(path, F_OK) == 0) {
-//
-//    }
-//    else {
-//
-//    }
-
-
-
-//    return ret_value;
 }
 
-// TODO check errors
 int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *stat_buf) {
 
     char full_path[PATH_MAX];
@@ -140,7 +118,6 @@ int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *
             ret_value = -errno;
         }
         else {
-            // TODO
             ret_value = -EIO;
         }
     }
@@ -150,7 +127,6 @@ int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *
     }
 
     stat_buf->st_size = file_size;
-    // TODO ?
     stat_buf->st_blksize = conf->block_handler.block_size;
     stat_buf->st_blocks = (file_size % stat_buf->st_blksize) == 0 ? file_size/stat_buf->st_blksize : file_size/stat_buf->st_blksize + 1;
     stat_buf->st_blocks = (stat_buf->st_blocks*stat_buf->st_blksize)/512;
@@ -162,7 +138,6 @@ int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *
 
 int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
 
-    // TODO delete if error?
     char full_path[PATH_MAX];
     int fd;
     int ret, ret_value = 0;
@@ -179,7 +154,6 @@ int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
             ret_value = -errno;
         }
         else {
-            // TODO
             ret_value = -EIO;
         }
     }
@@ -192,7 +166,6 @@ int file_mknod(struct file_handler_conf *conf, const char *path, mode_t mode) {
 }
 
 int file_unlink(struct file_handler_conf *conf, const char *path) {
-    // TODO check errors
     char full_path[PATH_MAX];
     int fd;
     int ret, ret_value = 0;
@@ -217,7 +190,6 @@ int file_unlink(struct file_handler_conf *conf, const char *path) {
             ret_value = -errno;
         }
         else {
-            // TODO
             ret_value = -EIO;
         }
     }
@@ -238,7 +210,6 @@ int file_unlink(struct file_handler_conf *conf, const char *path) {
 }
 
 int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_size) {
-    // TODO check errors
     char full_path[PATH_MAX];
     int fd;
     int ret, ret_value = 0;
@@ -256,7 +227,6 @@ int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_si
             ret_value = -errno;
         }
         else {
-            // TODO
             ret_value = -EIO;
         }
     }
@@ -273,7 +243,6 @@ int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_si
                 ret_value = -errno;
             }
             else {
-                // TODO
                 ret_value = -EIO;
             }
         }
@@ -305,7 +274,6 @@ int file_truncate(struct file_handler_conf *conf, const char *path, off_t new_si
                 ret_value = -errno;
             }
             else {
-                // TODO
                 ret_value = -EIO;
             }
         }
@@ -326,13 +294,11 @@ int file_open(struct file_handler_conf *conf, const char *path, int flags) {
     get_full_path(conf, full_path, path);
 
     if ((fd = next_fd(conf)) < 0) {
-        // TODO return what
         return -EIO;
     }
 
     conf->file_descriptors[fd] = malloc(sizeof(struct file_descriptor));
 
-    // TODO flags?
     if ((flags & O_ACCMODE) == O_WRONLY) {
         flags = flags & ~O_WRONLY;
         flags = flags | O_RDWR;
@@ -345,7 +311,6 @@ int file_open(struct file_handler_conf *conf, const char *path, int flags) {
         return -errno;
     }
 
-    //TODO size
     conf->file_descriptors[fd]->cache = cache_init(fd, 0, conf);
 
     return fd;
@@ -365,7 +330,6 @@ int file_read(struct file_handler_conf *conf, int fd, void *buf, size_t size, of
     // call cache read
     cache_read(conf->file_descriptors[fd]->cache, buf, read_size, offset);
 
-    // TODO return bytes read
     return read_size;
 }
 
@@ -380,7 +344,6 @@ int file_write(struct file_handler_conf *conf, int fd, const void *buf, size_t s
     // call cache write
     cache_write(conf->file_descriptors[fd]->cache, buf, size, offset);
 
-    // TODO return bytes writen
     return size;
 }
 
@@ -392,14 +355,11 @@ int file_release(struct file_handler_conf *conf, int fd) {
 }
 
 int file_fsync(struct file_handler_conf *conf, int fd) {
-    // TODO
 }
 
 int file_ftruncate(struct file_handler_conf *conf, int fd, off_t new_size) {
-    // TODO check errors
     int ret, ret_value = 0;
     long file_size, file_blocks, file_new_blocks;
-    // TODO block size or hash length
     unsigned char hash[conf->block_handler.block_size];
     int index_fd = conf->file_descriptors[fd]->index_fd;
 
@@ -409,7 +369,6 @@ int file_ftruncate(struct file_handler_conf *conf, int fd, off_t new_size) {
             ret_value = -errno;
         }
         else {
-            // TODO
             ret_value = -EIO;
         }
     }
@@ -426,7 +385,6 @@ int file_ftruncate(struct file_handler_conf *conf, int fd, off_t new_size) {
                 ret_value = -errno;
             }
             else {
-                // TODO
                 ret_value = -EIO;
             }
         }
@@ -458,7 +416,6 @@ int file_ftruncate(struct file_handler_conf *conf, int fd, off_t new_size) {
                 ret_value = -errno;
             }
             else {
-                // TODO
                 ret_value = -EIO;
             }
         }
@@ -472,7 +429,6 @@ int file_fgetattr(struct file_handler_conf *conf, int fd, struct stat *stat_buf)
     int ret_value = 0;
 
     long file_size;
-    // TODO check errors
     file_get_size(conf, fd, &file_size);
 
     if (fstat(conf->file_descriptors[fd]->index_fd, stat_buf) == -1) {
@@ -480,7 +436,6 @@ int file_fgetattr(struct file_handler_conf *conf, int fd, struct stat *stat_buf)
     }
 
     stat_buf->st_size = file_size;
-    // TODO ?
     stat_buf->st_blksize = conf->block_handler.block_size;
     stat_buf->st_blocks = (file_size % stat_buf->st_blksize) == 0 ? file_size/stat_buf->st_blksize : file_size/stat_buf->st_blksize + 1;
     stat_buf->st_blocks = (stat_buf->st_blocks*stat_buf->st_blksize)/512;
@@ -496,14 +451,12 @@ int file_get_block_hash(struct file_handler_conf *conf, int fd, long block, unsi
     return 0;
 }
 
-// TODO check errors
 int file_set_block_hash(struct file_handler_conf *conf, int fd, long block, const unsigned char *hash) {
     lseek(conf->file_descriptors[fd]->index_fd, FILE_SIZE_BYTES + (block*hash_length[conf->hash_type-1]), SEEK_SET);
     write(conf->file_descriptors[fd]->index_fd, hash, hash_length[conf->hash_type-1]);
     return 0;
 }
 
-// TODO check errors
 int file_get_size(struct file_handler_conf *conf, int fd, long *file_size) {
     int ret, ret_value = 0;
     lseek(conf->file_descriptors[fd]->index_fd, 0, SEEK_SET);
@@ -512,17 +465,12 @@ int file_get_size(struct file_handler_conf *conf, int fd, long *file_size) {
             ret_value = -errno;
         }
         else {
-            // TODO
             ret_value = -EIO;
         }
     }
     return ret_value;
 }
 
-// TODO check errors
-// TODO what happens if you set beyond the file size
-// TODO what happens if you reduce the file size
-// TODO ret value ?
 int file_set_size(struct file_handler_conf *conf, int fd, const long file_size) {
     int ret, ret_value = 0;
     lseek(conf->file_descriptors[fd]->index_fd, 0, SEEK_SET);
@@ -531,7 +479,6 @@ int file_set_size(struct file_handler_conf *conf, int fd, const long file_size) 
             ret_value = -errno;
         }
         else {
-            // TODO
             ret_value = -EIO;
         }
     }

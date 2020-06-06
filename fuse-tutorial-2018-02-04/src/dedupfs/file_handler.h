@@ -27,7 +27,6 @@ struct file_handler_conf {
 
 
 int file_handler_init(struct file_handler_conf *conf);
-// TODO
 int file_handler_end(struct file_handler_conf *conf);
 
 int file_getattr(struct file_handler_conf *conf, const char *path, struct stat *stat_buf);
@@ -48,7 +47,6 @@ int file_fgetattr(struct file_handler_conf *conf, int fd, struct stat *stat_buf)
 int file_get_block_hash(struct file_handler_conf *conf, int fd, long block, unsigned char *hash);
 int file_set_block_hash(struct file_handler_conf *conf, int fd, long block, const unsigned char *hash);
 
-// TODO public?
 int file_get_size(struct file_handler_conf *conf, int fd, long *file_size);
 int file_set_size(struct file_handler_conf *conf, int fd, const long file_size);
 
