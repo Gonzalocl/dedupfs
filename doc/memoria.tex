@@ -47,7 +47,7 @@ Grado en Ingeniería Informática
 \newpage
 \section{Resumen del trabajo}
 
-El trabajo trata de realizar un sistema de ficheros que deduplique los datos para poder ahorrar espacio en el disco. Se usa la biblioteca Fuse para hacer el sistema de ficheros. Se parte de un ejemplo (bbfs) que será modificado para añadir la funcionalidad, la mayor parte del código nuevo se encuentra en ficheros separados al del ejemplo, el ejemplo se a modificado poco para mantener la funcionalidad que no cambia (directorios) y la nueva funcionalidad se añade llamando al código nuevo. También se han realizado unos programas para probar algunas funciones del programa por separado con un correspondiente script que los ejecuta.
+El trabajo trata de realizar un sistema de ficheros que deduplique los datos para poder ahorrar espacio en el disco. Se usa la biblioteca Fuse para hacer el sistema de ficheros. Se parte de un ejemplo (bbfs) que será modificado para añadir la funcionalidad, la mayor parte del código nuevo se encuentra en ficheros separados al del ejemplo, el ejemplo se a modificado poco para mantener la funcionalidad que no cambia (directorios) y la nueva funcionalidad se añade llamando al código nuevo. También se han realizado unos scripts para probar algunas funciones del programa.
 
 \section{Conceptos}
 
@@ -67,15 +67,17 @@ El trabajo trata de realizar un sistema de ficheros que deduplique los datos par
 El programa organiza la información en rootdir creando dos directorios uno en el que se almacenarán los ficheros bloque y otro en el que se almacenarán los ficheros índices.
 \bigskip
 
-El directorio donde se almacenan ficheros bloques se organiza de la siguiente manera: los bloques se referencian mediante su hash, el hash se divide en los dos primeros bytes y el resto, los dos primeros bytes servirán como nombre del directorio padre que almacenará todos los bloque cuyo hash comience por esos bytes. El resto de bytes del hash se usa para el nombre del fichero en esa carpeta. En ese fichero se almacenan realmente los datos y un contador de referencias al mismo. También en este directorio se almacena un fichero con la configuración del sistema de ficheros.
+El directorio donde se almacenan ficheros bloques se organiza de la siguiente manera: los bloques se referencian mediante su hash, el hash se divide en el primer byte y el resto, el primer byte servirá como nombre del directorio padre que almacenará todos los bloque cuyo hash comience por ese byte. El resto de bytes del hash se usa para el nombre del fichero en esa carpeta. En ese fichero se almacenan realmente los datos y un contador de referencias al bloque que hace referencia. También en este directorio se almacena un fichero con la configuración del sistema de ficheros.
 \bigskip
 
 El directorio donde se almacenan los ficheros índice se organiza de la siguiente manera: se van creando directorios y ficheros según los va creando el usuario en mountdir. Los atributos de estos ficheros y directorios serán los que se correspondan con los que se muestran en mountdir excepto el tamaño. El contenido de estos ficheros será el tamaño del fichero que representa y una lista de hashes de bloques que forman el fichero que representa ordenados por bloques.
 \bigskip
 
-El programa está dividido en el programa principal y 3 módulos principalmente. El programa principal parte del tutorial de Fuse que se proporciona, tiene pocos cambiado, se encarga de gestionar los directorios y llama al módulo file\_handler.h cuando sea necesario. El módulo file\_handler.h se encarga de gestionar los ficheros en el directorio que contiene los ficheros índices. El módulo block\_handler.h se encarga de gestionar los ficheros en el directorio que contiene los ficheros bloques. El módulo block\_cache.h se encarga de dividir las operaciones de lectura y escritura en bloques y calcular sus hashes. El módulo auxiliar get\_hash.h es muy simple y lo único que hace es aportar una función que calcule el hash del bloque.
+El programa está dividido en el programa principal y 3 módulos principalmente. El programa principal parte del tutorial de Fuse que se proporciona, tiene pocos cambios, se encarga de gestionar los directorios y llama al módulo file\_handler.h cuando sea necesario. El módulo file\_handler.h se encarga de gestionar los ficheros en el directorio que contiene los ficheros índices. El módulo block\_handler.h se encarga de gestionar los ficheros en el directorio que contiene los ficheros bloques. El módulo block\_cache.h se encarga de dividir las operaciones de lectura y escritura en bloques y calcular sus hashes. El módulo auxiliar get\_hash.h es muy simple y lo único que hace es aportar una función que calcule el hash del bloque.
 
 \subsection{Modulo block\_handler.h}
+Este módulo se encarga de gestionar los ficheros bloque tiene tres operaciones principales crear, leer y borrar un bloque. En el caso de leer el bloque simplemente lo lee, al crear un bloque lo crea si no existe o aumenta el contador de referencias a ese bloque si ya existe y en el caso de borrar disminuye el contador de referencias o en el caso de que el contador de referencias llegue a cero se elimina. Organiza los bloques según su hash.
+\bigskip
 
 Este módulo tiene principalmente la estructura de datos struct block\_handler\_conf con los campos:
 
@@ -95,9 +97,24 @@ La estructura se usa para almacenar la configuración.
 Las principales funciones del módulo son:
 \begin{itemize}
 \item block\_handler\_init(): se le pasa la ruta del rootdir y una estructura de datos donde se le indica la configuración que tiene que usar. Se encarga de inicializar el módulo, comprobar que la configuración que se le pasa es correcta y guardar la configuración.
-\item block\_create(): se le pasa el hash del bloque y los datos. Se encarga de añadir un bloque a la base de datos, comprueba si el bloque ya existe en ese caso solo tiene que incrementar el contador de referencias de dicho bloque en caso contrario crea el bloque y con el contador de referencias a 1.
-\item block\_delete(): se le pasa el hash del bloque. Se encarga de eliminar un bloque a la base de datos, lee el contador de referencias de dicho bloque y le resta uno en caso de que fuese la última referencia lo elimina.
+
+\item block\_create(): se le pasa el hash del bloque y los datos. Se encarga de añadir un bloque a la base de datos, comprueba si el bloque ya existe, en ese caso solo tiene que incrementar el contador de referencias de dicho bloque, en caso contrario crea el bloque y pone el contador de referencias a 1.
+
+\item block\_delete(): se le pasa el hash del bloque. Se encarga de eliminar un bloque de la base de datos, lee el contador de referencias de dicho bloque y le resta uno en caso de que fuese la última referencia lo elimina.
+
 \item block\_read(): se le pasa el hash del bloque y un array donde se escribirán los datos leídos.
+\end{itemize}
+
+Esas son las funciones principales con las que se usa el módulo, en el módulo también hay otras funciones que realizan las siguientes funciones:
+
+\begin{itemize}
+\item check\_conf(): comprueba que los valores que hay en la estructura de configuración que se le pasan son correctos.
+
+\item write\_conf\_file() y read\_conf\_file(): escriben y leen la configuración actual en respectivamente de un fichero de configuración.
+
+\item get\_block\_path(): genera la ruta para un determinado hash de un bloque. Dependiendo de la configuración se puede especificar que los bloques se organizen en un subdirectorio o más.
+
+\item create\_parents(): crea los subdirectorios para cierto bloque. Al igual que en la función anterior depende de la configuración.
 \end{itemize}
 
 \subsection{Modulo block\_cache.h}
