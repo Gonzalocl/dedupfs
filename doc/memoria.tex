@@ -127,13 +127,13 @@ Este módulo es muy sencillo solo tiene una función, get\_hash(), que calcula e
 
 \subsection{Modulo file\_handler.h}
 
-Este módulo es el encargado de gestionar los ficheros índice y los ficheros a los que representa.
+Este módulo es el encargado de gestionar los ficheros índice y los ficheros a los que representa, para ello mantiene en root\_dir una carpeta paralela en donde se van realizando todas las operaciones que se realizan en mount\_dir, pero ne vez de almacenar los datos en los esos ficheros paralelos usa el módulo block\_handler.h para almacenar la información. Este módulo crea al principio un bloque que sólo contiene ceros pero sin asignarlo a ningún fichero, esto es para que ese bloque permanezca en todo momento en la base de datos y así hacer más eficiente la inicialización de ficheros. También se guarda el hash de ese bloque para no tener que calcularlo.
 \bigskip
 
 La estructura de datos struct file\_descriptor representa un fichero abierto y sus campos significan:
 \begin{itemize}
-\item index\_fd: descriptor de fichero del fichero índice relativo al fichero abierto
-\item cache: estructura de datos para poder llamar al módulo block\_cache.h en este fichero
+\item index\_fd: descriptor de fichero del fichero índice relativo al fichero abierto.
+\item cache: estructura de datos para poder llamar al módulo block\_cache.h en este fichero.
 \end{itemize}
 
 
@@ -146,9 +146,9 @@ La estructura de datos struct file\_handler\_conf se usa para mantener el estado
 \item files\_path: nombre de la carpeta donde se almacenan los ficheros índice.
 \item full\_files\_path: concatenacion de fs\_path y files\_path.
 \item hash\_type: el hash a utilizar.
-\item block\_handler: estructura de datos para mantener el estado del modulo block\_handler.h.
+\item block\_handler: estructura de datos para mantener el estado del módulo block\_handler.h.
 \item file\_open\_max: máximo número de ficheros abiertos.
-\item file\_descriptors: array donde mantener las estructuras struct file\_descriptor de los ficheros abiertos
+\item file\_descriptors: array donde mantener las estructuras struct file\_descriptor de los ficheros abiertos.
 \item fd\_counter: variable para facilitar la búsqueda de un descriptor de fichero libre.
 \item zero\_block\_hash: hash de un bloque con todo a 0.
 \item zero\_block\_data: un array del tamaño de un bloque con todo a 0.
@@ -158,18 +158,37 @@ Las principales funciones del módulo son:
 
 \begin{itemize}
 \item file\_handler\_init(): es necesario llamar a esta función para inicializar el módulo con la configuración. También inicializa el módulo block\_handler.h y crea un bloque con todo 0, que será  usado más tarde par rellenar huecos.
+
 \item file\_mknod(): crea un nuevo fichero indice y lo inicializa a tamaño 0.
+
 \item file\_unlink(): elimina un fichero indice y sus bloques en caso de que tuviera.
+
 \item file\_open(): busca un descriptor de fichero para abrir el fichero y reserva los recursos necesarios.
+
 \item file\_read(): comprueba si se quiere leer más allá del tamaño del fichero en ese caso reduce el tamaño de la lectura y luego llama al módulo block\_cache.h.
+
 \item file\_write(): comprueba si se quiere escribir más allá del tamaño del fichero en ese caso rellena el fichero con bloques con 0 y luego llama al módulo block\_cache.h.
+
 \item file\_release(): libera los recursos que se reservaron al abrir un fichero.
-\item file\_ftruncate(): cambia el tamaño de un fichero en caso de que reduzca el tamaño borra los bloques oportunos en caso contrario rellena con ceros y en ambos casos deja reflejados los cambios en el fichero índice correspondiente. La funcion file\_truncate() es parecida a esta.
-\item file\_fgetattr(): llama a fstat en el fichero índice correspondiente al fichero que representa el descriptor de fichero y modifica el resultado para cambiar el tamaño del fichero al que corresponde al fichero que representa. La funcion file\_getattr() es parecida a esta.
+
+\item file\_ftruncate(): cambia el tamaño de un fichero en caso de que reduzca el tamaño borra los bloques oportunos en caso contrario rellena con ceros y en ambos casos deja reflejados los cambios en el fichero índice correspondiente. La función file\_truncate() es parecida a esta pero en vez de pasarle un descriptor de ficheros se le pasa un ruta, por lo que el fichero se abre y se cierra antes de realizar la operación.
+
+\item file\_fgetattr(): llama a fstat en el fichero índice correspondiente al fichero que representa el descriptor de fichero y modifica el resultado para cambiar el tamaño del fichero al que corresponde al fichero que representa. La función file\_getattr() es parecida a esta pero en vez de pasarle un descriptor de ficheros se le pasa un ruta, por lo que el fichero se abre y se cierra antes de realizar la operación.
+
 \item file\_get\_block\_hash(): se usa para obtener los hashes de los bloques que pertenecen a un fichero.
+
 \item file\_set\_block\_hash(): se usa para establecer los hashes de los bloques que pertenecen a un fichero.
 \end{itemize}
 
+Esas son las funciones principales con las que se usa el módulo, en el módulo también hay otras funciones que realizan las siguientes funciones:
+
+\begin{itemize}
+\item get\_full\_path(): se encarga de formar la ruta completa a un fichero índice a partir de la ruta relativa a mount\_dir.
+
+\item next\_fd(): busca y devuelve un descriptor de fichero libre para ser usado.
+
+\item file\_get\_size() y file\_set\_size(): leen y escriben en el fichero índice el tamaño del fichero que representa repectivamente.
+\end{itemize}
 
 \subsection{Programa principal bbfs.c}
 
