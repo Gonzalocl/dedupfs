@@ -197,9 +197,13 @@ Este programa parte del tutorial de Fuse, los cambios realizados son los siguien
 
 \begin{itemize}
 \item Modificado las funciones bb\_getattr() bb\_unlink() bb\_truncate() bb\_open() bb\_read() bb\_write() bb\_release() bb\_ftruncate() y bb\_fgetattr() para llamar a la función correspondiente del módulo file\_handler.h.
+
 \item Modificando la función bb\_mknod() para llamar a la función file\_mknod() pero solo en el caso de que sean ficheros regulares.
+
 \item Modificado la función bb\_fullpath() para que incluya en la ruta el directorio de ficheros índice.
+
 \item Modificado la función main() para leer el tamaño de bloque por línea de comandos.
+
 \item En el fichero params.h en la estructura de datos struct bb\_state añadido un campo para mantener el estado del módulo file\_handler.h.
 \end{itemize}
 
@@ -234,21 +238,6 @@ fuse-tutorial-2018-02-04/example$ fusermount -u mountdir
 
 
 
-
-
-
-\subsection{Tests}
-
-
-Hay unos programas de test que ejecutan las funciones por separado, se pueden compilar con su Makefile y se ejecutan con el script test\_all.sh. Se encuentran en la carpeta fuse-tutorial-2018-02-04/src/dedupfs/test.
-\bigskip
-
-Por ejemplo se pueden probar de la siguiente forma:
-\begin{verbatim}
-fuse-tutorial-2018-02-04$ cd src/dedupfs/test/
-fuse-tutorial-2018-02-04/src/dedupfs/test$ make
-fuse-tutorial-2018-02-04/src/dedupfs/test$ ./test_all.sh
-\end{verbatim}
 
 
 
