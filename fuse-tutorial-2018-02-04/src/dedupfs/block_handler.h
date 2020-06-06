@@ -26,7 +26,6 @@ struct block_handler_conf {
 int block_handler_init(char *fs, struct block_handler_conf *conf);
 int block_handler_get_conf(struct block_handler_conf *conf);
 
-// Free blocks_path
 int block_handler_end();
 
 
@@ -35,22 +34,6 @@ int block_delete(unsigned char *hash);
 
 
 int block_read(unsigned char *hash, char *data);
-
-// Doesn't make sense
-//int block_write(char *hash, char *data);
-
-// Could be useful
-//int block_read_delete(char *hash, char *data);
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -21,7 +21,6 @@ struct block_handler_conf *handler_conf = NULL;
 char fs_path[PATH_MAX];
 
 static int check_conf(struct block_handler_conf *conf) {
-    // TODO complete
     if (conf->block_size <= 0) {
         return FALSE;
     }
@@ -57,8 +56,6 @@ static int check_conf(struct block_handler_conf *conf) {
  */
 static int write_conf_file() {
 
-    // TODO use open read write?
-    // TODO delete if error
     char path[PATH_MAX];
     int path_length;
     int ret_value = 0;
@@ -139,7 +136,6 @@ static int write_conf_file() {
  */
 static int read_conf_file(char *blocks_path) {
 
-    // TODO use open read write?
     char path[PATH_MAX];
     int path_length;
     int ret_value = 0;
@@ -211,15 +207,11 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
     int ret_value = 0;
 
     if (handler_conf != NULL) {
-        // TODO
         return -1;
     }
 
     strncpy(fs_path, fs, PATH_MAX-1);
-    // TODO
-//    if (PATH_MAX > 0) {
-        fs_path[PATH_MAX-1] = '\0';
-//    }
+    fs_path[PATH_MAX-1] = '\0';
 
     if ((handler_conf = malloc(sizeof(struct block_handler_conf))) == NULL) {
         ret_value = -errno;
@@ -233,7 +225,6 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
             ret_value = -EIO;
             goto error1;
         }
-        // TODO how to determine if other error in access
         if (access(path, F_OK) == 0) {
             if ((ret_value = read_conf_file(DEFAULT_BLOCKS_PATH)) < 0) {
                 goto error1;
@@ -326,27 +317,21 @@ int block_handler_init(char *fs, struct block_handler_conf *conf) {
 }
 
 int block_handler_get_conf(struct block_handler_conf *conf) {
-    // TODO make copy?
     return 0;
 }
 
-// Free blocks_path
 int block_handler_end() {
-    // TODO
     return 0;
 }
 
-// TODO return -errno (-EIO)
 static int get_block_path(char *block_path, unsigned char *hash) {
     int chars;
     if ((chars = snprintf(block_path, PATH_MAX, "%s/%s/", fs_path, handler_conf->blocks_path)) < 0) {
         return -1;
     }
-    // TODO make this check anywhere else only once
     if ((chars + handler_conf->hash_length*2 + handler_conf->hash_split + 1) > PATH_MAX) {
         return -1;
     }
-    // TODO optimize this?
     for (int i = 0; i < handler_conf->hash_split; i++) {
         for (int j = 0; j < handler_conf->hash_split_size; j++) {
             if (sprintf(block_path + chars, "%02x", hash[handler_conf->hash_split_size*i + j]) < 0) {
@@ -366,34 +351,29 @@ static int get_block_path(char *block_path, unsigned char *hash) {
     return 0;
 }
 
-// TODO return -errno (-EIO)
 static int create_parents(unsigned char *hash) {
     char block_path[PATH_MAX];
     int chars;
     if ((chars = snprintf(block_path, PATH_MAX, "%s/%s/", fs_path, handler_conf->blocks_path)) < 0) {
         return -1;
     }
-    // TODO make this check anywhere else only once
     if ((chars + handler_conf->hash_length*2 + handler_conf->hash_split + 1) > PATH_MAX) {
         return -1;
     }
-    // TODO optimize this?
     for (int i = 0; i < handler_conf->hash_split; i++) {
         for (int j = 0; j < handler_conf->hash_split_size; j++) {
             if (sprintf(block_path + chars, "%02x", hash[handler_conf->hash_split_size*i + j]) < 0) {
-                // TODO goto error undo mkdir done
                 return -1;
             }
             chars += 2;
         }
         if (mkdir(block_path, 0755) != 0) {
             if (errno != EEXIST) {
-                // TODO goto error undo mkdir done
                 return -errno;
             }
         }
         else {
-            // TODO take note folder created in case it has to be undone
+            //
         }
         block_path[chars] = '/';
         chars++;
@@ -402,24 +382,10 @@ static int create_parents(unsigned char *hash) {
 }
 
 static int delete_block_path(char *block_path) {
-    // TODO
     return 0;
 }
 
 int block_create(unsigned char *hash, const char *data) {
-//    if (handler_conf == NULL) {
-//        // TODO
-//        // TODO call init?
-//        return -1;
-//    }
-//    if (hash == NULL) {
-//        // TODO
-//        return -2;
-//    }
-//    if (data == NULL) {
-//        // TODO
-//        return -3;
-//    }
 
     int ret_value = 0;
     FILE *block;
@@ -431,13 +397,10 @@ int block_create(unsigned char *hash, const char *data) {
     }
     if (access(block_path, F_OK) == 0) {
         // file exists increase link counter
-//        TODO
-//        block = fopen(block_path, "rb");
         if ((block = fopen(block_path, "r+b")) == NULL) {
             return -errno;
         }
 
-        // TODO is it more efficient with seek end?
         if (fseek(block, handler_conf->block_size, SEEK_SET) != 0) {
             ret_value = -errno;
             goto out;
@@ -463,7 +426,6 @@ int block_create(unsigned char *hash, const char *data) {
     }
     else {
         // file doesn't exist create with link counter to 1
-        // TODO undo this if error with delete path
         if ((ret_value = create_parents(hash)) != 0) {
             return ret_value;
         }
@@ -495,15 +457,6 @@ int block_create(unsigned char *hash, const char *data) {
 }
 
 int block_delete(unsigned char *hash) {
-//    if (handler_conf == NULL) {
-//         TODO
-//         TODO call init?
-//        return -1;
-//    }
-//    if (hash == NULL) {
-//         TODO
-//        return -2;
-//    }
     int ret_value = 0;
     FILE *block;
     int link_counter;
@@ -515,7 +468,6 @@ int block_delete(unsigned char *hash) {
     if ((block = fopen(block_path, "r+b")) == NULL) {
         return -errno;
     }
-    // TODO is it more efficient with seek end?
     if (fseek(block, handler_conf->block_size, SEEK_SET) != 0) {
         ret_value = -errno;
         goto error;
@@ -533,7 +485,6 @@ int block_delete(unsigned char *hash) {
         }
 
         if (unlink(block_path) != 0) {
-            // TODO no undo?
             return -errno;
         }
 
@@ -572,19 +523,6 @@ int block_delete(unsigned char *hash) {
 
 
 int block_read(unsigned char *hash, char *data) {
-//    if (handler_conf == NULL) {
-//        // TODO
-//        // TODO call init?
-//        return -1;
-//    }
-//    if (hash == NULL) {
-//        // TODO
-//        return -2;
-//    }
-//    if (data == NULL) {
-//        // TODO
-//        return -3;
-//    }
 
     int ret_value = 0;
     FILE *block;
