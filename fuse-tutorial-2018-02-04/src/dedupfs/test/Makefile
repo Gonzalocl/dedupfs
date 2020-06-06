@@ -6,7 +6,7 @@ SRC := $(wildcard test_*.c)
 OBJ := $(patsubst %.c, bin/%, $(SRC))
 
 
-all: $(OBJ)
+all: init $(OBJ)
 
 
 bin/test_%: test_%.c bin/block_handler.o bin/file_handler.o bin/block_cache.o bin/get_hash.o
@@ -29,8 +29,8 @@ bin/block_cache.o: ../block_cache.h ../block_cache.c
 bin/get_hash.o: ../get_hash.h ../get_hash.c
 	gcc -g -o bin/get_hash.o -c ../get_hash.c
 
-
+init:
+	mkdir -p bin/fs
 
 clean:
 	rm -rf bin/*
-	mkdir bin/fs
